@@ -1,0 +1,70 @@
+# ============================================================
+# SiO2 pull-out from FKM along +Z, 100 A displacement
+# Clamp: bottom 10 A layer of FKM (fixed)
+# Pull : SiO2 as rigid body, v = 0.001 A/fs (1 A/ps)
+#        -> 100 A in 100000 steps (100 ps)
+# Thermostat: NVT 300 K on mobile FKM
+# Input : nvt_2000ps_gpu_vacuum200.data (200 A z vacuum)
+# Output: pullout_force_100A.txt  (step, displacement, force_z)
+#         pullout_traj_100A.dump (every 1000 steps)
+#         pullout_end_100A.data
+# ============================================================
+
+units           real
+atom_style      full
+boundary        p p p
+
+pair_style      lj/class2/coul/long 15.5
+kspace_style    pppm 1e-4
+bond_style      class2
+angle_style     class2
+dihedral_style  class2
+improper_style  class2
+special_bonds   lj/coul 0 0 1
+
+read_data       nvt_2000ps_gpu_vacuum200.data
+
+neighbor        0.3 bin
+neigh_modify    delay 0 every 1 check yes
+
+# ---- groups ----
+# SiO2: ho(7) o(8) si(9)  ;  FKM: c(1) c1(2) c2(3) c3(4) f(5) hc(6)
+group           sio2   type 7 8 9
+group           matrix type 1 2 3 4 5 6
+
+# clamp = bottom 10 A layer of FKM (z from 21.2 to 31.2)
+region          clamp block INF INF INF INF INF 31.2 units box
+group           clamp region clamp
+group           clamp subtract clamp sio2
+
+group           mobile subtract matrix clamp
+
+# ---- constraints ----
+fix             freeze clamp setforce 0 0 0
+fix             pull  sio2 move linear 0 0 0.001
+
+# ---- thermostat on mobile FKM only ----
+fix             temp mobile nvt temp 300.0 300.0 100.0
+
+# ---- force/displacement output ----
+variable        z0     equal xcm(sio2,z)
+variable        zcom   equal xcm(sio2,z)
+variable        step   equal step
+compute         fsio   sio2 reduce sum fz
+variable        disp   equal xcm(sio2,z)-${z0}
+variable        force  equal -c_fsio
+fix             out all print 100 "$(step) $(v_disp) $(v_force)" &
+                file pullout_force_100A.txt screen no
+
+# ---- trajectory every 1000 steps ----
+dump           traj all custom 1000 pullout_traj_100A.dump id type x y z vx vy vz
+dump_modify    traj sort id
+
+thermo          1000
+thermo_style    custom step temp pe press v_zcom c_fsio
+
+timestep        1.0
+run             100000
+
+write_data      pullout_end_100A.data
+print           ">>> Pull-out 100 A completed."

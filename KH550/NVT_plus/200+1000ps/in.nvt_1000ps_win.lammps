@@ -1,0 +1,58 @@
+# ============================================================
+# KH550 1000 ps NVT production (1 frame per ps) - local Windows
+# Input : F:/Lammps-MS/FKM-SIO2-TEST/KH550/NVT_plus/200+1000ps/nvt_200ps.data
+# Velocities are regenerated (do not inherit the input state).
+# Output: nvt_1000ps_traj.dump (1000 frames), monitor, restart, data, end dump
+# ============================================================
+
+units           real
+atom_style      full
+boundary        p p p
+
+pair_style      lj/class2/coul/long 15.5
+bond_style      class2
+angle_style     class2
+dihedral_style  class2
+improper_style  class2
+special_bonds   lj/coul 0 0 1
+kspace_style    pppm 1e-4
+
+read_data       F:/Lammps-MS/FKM-SIO2-TEST/KH550/NVT_plus/200+1000ps/nvt_200ps.data
+
+neighbor        0.3 bin
+neigh_modify    delay 0 every 1 check yes
+
+timestep        1.0
+
+velocity        all create 300.0 4928459 dist gaussian
+velocity        all zero linear
+
+fix             nvt all nvt temp 300.0 300.0 100.0
+
+thermo          1000
+thermo_style    custom step temp pe ke etotal press vol density
+
+dump            traj all custom 1000 F:/Lammps-MS/FKM-SIO2-TEST/KH550/NVT_plus/200+1000ps/nvt_1000ps_traj.dump id type x y z ix iy iz
+dump_modify     traj sort id
+
+variable        tps  equal step*0.001
+variable        Tcur equal temp
+variable        PE   equal pe
+variable        KE   equal ke
+variable        Etot equal etotal
+variable        Pres equal press
+variable        Vol  equal vol
+variable        Dens equal density
+fix             mon all print 1000 "${tps} ${Tcur} ${PE} ${KE} ${Etot} ${Pres} ${Vol} ${Dens}" file F:/Lammps-MS/FKM-SIO2-TEST/KH550/NVT_plus/200+1000ps/nvt_1000ps_monitor.txt screen no
+
+run             1000000
+
+unfix           nvt
+
+write_restart   F:/Lammps-MS/FKM-SIO2-TEST/KH550/NVT_plus/200+1000ps/nvt_1000ps.restart
+write_data      F:/Lammps-MS/FKM-SIO2-TEST/KH550/NVT_plus/200+1000ps/nvt_1000ps.data
+write_dump      all custom F:/Lammps-MS/FKM-SIO2-TEST/KH550/NVT_plus/200+1000ps/nvt_1000ps_end.dump id type x y z ix iy iz
+
+print           "NVT 1000 ps production finished"
+
+

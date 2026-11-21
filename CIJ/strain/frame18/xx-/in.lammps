@@ -1,0 +1,41 @@
+# Cij strain job: xx, strain -0.003
+units           real
+atom_style      full
+boundary        p p p
+
+pair_style      lj/class2/coul/long 15.5
+kspace_style    pppm 1e-4
+bond_style      class2
+angle_style     class2
+dihedral_style  class2
+improper_style  class2
+special_bonds   lj/coul 0 0 1
+
+read_data       ../../../frames/frame18/frame18.data
+
+neighbor        0.3 bin
+neigh_modify    delay 0 every 1 check yes
+
+timestep        1.0
+
+velocity        all create 300.0 4928459 dist gaussian
+velocity        all zero linear
+
+change_box all x scale 0.997000 remap
+kspace_style    pppm 1e-4
+
+fix             nvt all nvt temp 300.0 300.0 100.0
+thermo          1000
+thermo_style    custom step temp pe ke etotal press vol density
+run             50000
+
+reset_timestep  0
+
+compute         T all temp
+compute         p all pressure T virial
+fix             av all ave/time 1000 150 150000 c_p[1] c_p[2] c_p[3] c_p[4] c_p[5] c_p[6] &
+                file stress_xx_-.txt mode scalar
+run             150000
+
+write_data      end_xx_-.data
+print           ">>> xx -0.003 done."

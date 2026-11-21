@@ -1,0 +1,48 @@
+units           real
+atom_style      full
+boundary        p p f
+
+pair_style      lj/class2/coul/long 15.5
+bond_style      class2
+angle_style     class2
+dihedral_style  class2
+improper_style  class2
+special_bonds   lj/coul 0 0 1
+kspace_style    pppm 1e-4
+kspace_modify   slab 3.0
+
+read_data       F:/Lammps-MS/FKM-SIO2-TEST/SMD/1ps/2/state_pull.data
+
+reset_timestep  156000
+
+group           SIO2 type 7 8 9
+group           FKM type 1 2 3 4 5 6
+region          anchor_region block INF INF INF INF 0.0 30.0
+group           anchor region anchor_region
+group           anchor subtract anchor SIO2
+group           mobile_FKM subtract FKM anchor
+
+group2ndx       FKM.ndx FKM
+
+velocity        anchor set 0.0 0.0 0.0
+
+fix             nve_sio2 SIO2 nve
+fix             nvt_matrix mobile_FKM nvt temp 300.0 300.0 100.0
+fix             freeze_anchor anchor setforce 0.0 0.0 0.0
+fix             Colvars all colvars F:/Lammps-MS/FKM-SIO2-TEST/SMD/1ps/2/colvars_relax_022.inp output relax_022
+fix_modify      Colvars energy yes
+
+variable        Step equal step
+variable        xs equal xcm(SIO2,x)
+variable        ys equal xcm(SIO2,y)
+variable        zs equal xcm(SIO2,z)
+variable        zf equal xcm(FKM,z)
+
+fix             mon all print 5000 "22 relax ${Step} ${xs} ${ys} ${zs} ${zf}" file F:/Lammps-MS/FKM-SIO2-TEST/SMD/1ps/2/monitor_relax_022.txt screen no
+
+dump            traj all custom 1000 seg_022_relax.dump id type x y z ix iy iz
+dump_modify     traj sort id flush yes
+
+run             5000
+
+write_data      F:/Lammps-MS/FKM-SIO2-TEST/SMD/1ps/2/state_relax.data

@@ -1,0 +1,15 @@
+配图输出都在：E:\A_tools\LAMMPS_GUI\projects\Lammps-MS\FKM-SIO2-TEST\论文作图\figures\
+
+共 24 张 300 dpi 的 PNG。直接打开 figures 文件夹 即可查看，每个脚本对应的输出文件名如下：
+
+01_界面结构_RDF → fig1a_fkm_radial_number_density.png … fig1d_interface_metrics.png
+02_径向质量密度 → fig2a_total_radial_density.png、fig2b_zone_density.png
+03_取向动力学 → fig3a_orient_acf.png、fig3b_orient_kww.png
+04_构象统计 → fig4a_conform_dihedral.png、fig4b_conform_bond.png、fig4c_conform_angle.png
+05_氢键 → fig5a_hbond_metrics.png、fig5b_hbond_total_timeseries.png
+06_界面结合能 → fig6a_interface_energy.png、fig6b_interface_energy_timeseries.png
+07_拉脱粘附功 → fig7a_pull_raw_bars.png、fig7c_pull_norm_bars.png、fig7d_pull_norm_fit.png
+08_回转半径 → fig8a_rg_region.png、fig8b_rg_timeseries.png
+09_端到端距离 → fig9a_ete_region.png、fig9b_ete_timeseries.png
+
+另外 02 和 06 还各输出一个汇总 CSV（fig2_density_summary.csv、fig6_interface_energy_summary.csv）在同目录。

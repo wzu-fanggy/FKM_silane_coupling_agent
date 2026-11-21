@@ -1,0 +1,6 @@
+A_SiOH_F_mean = 185.48
+A_SiOH_F_std = 6.937740619103541
+B_FKMH_SiO2O_mean = 107.98
+B_FKMH_SiO2O_std = 7.421672620763861
+total_mean = 293.46
+total_std = 10.288114799245243

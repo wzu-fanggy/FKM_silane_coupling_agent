@@ -1,0 +1,22 @@
+units real
+atom_style full
+boundary p p p
+
+pair_style lj/class2/coul/long 10.0
+bond_style class2
+angle_style class2
+dihedral_style class2
+improper_style class2
+special_bonds lj/coul 0 0 1
+kspace_style pppm 1e-4
+
+read_data KH570OH_min.data
+
+neighbor 0.3 bin
+neigh_modify delay 0 every 1 check yes
+
+min_style hftn
+minimize 0.0 1.0e-8 50000 500000
+
+write_dump all custom KH570OH_min_strict.dump id type x y z ix iy iz
+write_data KH570OH_min_strict.data

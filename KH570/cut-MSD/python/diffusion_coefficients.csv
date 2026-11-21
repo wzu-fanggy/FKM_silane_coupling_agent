@@ -1,0 +1,4 @@
+layer,D_cm2_s,relative_to_bulk,fit_range_ps,fit_points
+contact,1.019857e-07,0.5163,200-400,201
+interface,1.351145e-07,0.6840,200-400,201
+bulk,1.975499e-07,1.0000,200-400,201

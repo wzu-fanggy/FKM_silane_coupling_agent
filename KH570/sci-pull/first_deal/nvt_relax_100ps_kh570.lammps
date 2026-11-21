@@ -1,0 +1,62 @@
+# ============================================================
+# 100 ps NVT surface relaxation after adding 250 A z-vacuum (KH570)
+# Input : nvt_3000ps_centered_vacuum250.data (same dir)
+# Output: nvt_100ps_traj.dump (every 1000 steps)
+#         nvt_100ps_relaxed.data
+# Setup : p p f + pppm slab + reflecting walls
+#         bottom 25 A FKM clamped, everything else NVT 300 K
+# ============================================================
+
+units           real
+atom_style      full
+boundary        p p f
+
+pair_style      lj/class2/coul/long 15.5
+kspace_style    pppm 1e-4
+kspace_modify   slab 3.0
+bond_style      class2
+angle_style     class2
+dihedral_style  class2
+improper_style  class2
+special_bonds   lj/coul 0 0 1
+
+read_data       nvt_3000ps_centered_vacuum250.data
+
+neighbor        0.3 bin
+neigh_modify    delay 0 every 1 check yes
+
+# ---- groups ----
+# SiO2+KH570 cluster types and FKM types for the KH570 system
+group           sio2   type 5 6 7 9 11 12 13 14 15 16 17
+group           matrix type 1 2 3 4 8 10
+
+# bottom 25 A FKM layer stays fixed so the slab cannot drift
+region          clamp block INF INF INF INF INF 0.976384252360145 units box
+group           clamp region clamp
+group           clamp subtract clamp sio2
+
+group           mobile subtract all clamp
+
+# ---- constraints and thermostat ----
+fix             freeze clamp setforce 0 0 0
+fix             temp  mobile nvt temp 300.0 300.0 100.0
+fix             wallz all wall/reflect zlo -24.023615747639855 zhi 315.217567440135326
+
+# ---- monitoring ----
+variable        zcom   equal xcm(sio2,z)
+variable        zfkm   equal xcm(mobile,z)
+variable        step   equal step
+
+thermo          1000
+thermo_style    custom step temp pe press v_zcom v_zfkm
+
+# ---- trajectory every 1000 steps ----
+dump            traj all custom 1000 nvt_100ps_traj.dump id type x y z vx vy vz ix iy iz
+dump_modify     traj sort id
+dump_modify     traj flush yes
+
+timestep        1.0
+run             100000
+
+write_data      nvt_100ps_relaxed.data
+print           ">>> 100 ps NVT surface relaxation completed."

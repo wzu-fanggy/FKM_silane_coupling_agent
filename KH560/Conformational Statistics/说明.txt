@@ -1,0 +1,19 @@
+KH560 接枝后界面扰动层厚度 δ_pert = 8.28 Å（取自 KH560/RDF/interface_layer_summary.txt）。
+本目录对 nvt_500ps 轨迹（501 帧，17840 原子，15 类）按接触/界面/体相三层统计：
+- 键长、键角（dump.py → conform_stats_summary_fixed.txt）
+- 二面角 trans/gauche/cis 分布（dihedral_stats_NUMBA.py → dihedral_stats_results_NUMBA.txt、dihedral_histograms_NUMBA.txt）
+
+分层边界（centered on SiO2，R_surf=15.095）：
+- contact：15.10 – 18.10 Å
+- interface：18.10 – 23.38 Å
+- bulk：> 23.38 Å
+- SiO2/接枝原子（类型 5,7,9,10,11,12,13,14,15）归入 -1，不计入统计
+
+标签字典（BOND_LABELS / ANGLE_LABELS / DIHEDRAL_LABELS）均按 KH560 自己的
+data 文件 Masses + 键合拓扑自动生成，原子元素映射：1-5/13-14=C, 6=F, 7-8/15=H,
+9-11=O, 12=Si。
+
+运行：
+    python dump.py
+    python dihedral_stats_NUMBA.py
+    python analyze_conform_stats.py   # 裸 vs KH560 对比

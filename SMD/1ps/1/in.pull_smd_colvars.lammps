@@ -1,0 +1,86 @@
+# ============================================================
+# FKM/SiO2 continuous SMD via Colvars (replaces deprecated fix smd)
+# Input : pull_equil.data (same directory)
+# Pull  : SiO2 COM along +z at 1 A/ps, 200 A, 200 ps
+# Hold  : bottom FKM fixed + FKM COM z restrained by Colvars
+# Local smoke test:
+#   lmp -in in.pull_smd_colvars.lammps -var Nrun 100
+# Full run default:
+#   lmp -in in.pull_smd_colvars.lammps
+# ============================================================
+
+units           real
+atom_style      full
+boundary        p p f
+
+pair_style      lj/class2/coul/long 15.5
+bond_style      class2
+angle_style     class2
+dihedral_style  class2
+improper_style  class2
+special_bonds   lj/coul 0 0 1
+kspace_style    pppm 1e-4
+kspace_modify   slab 3.0
+
+read_data       pull_equil.data
+
+neighbor        0.3 bin
+neigh_modify    delay 0 every 1 check yes
+
+# ---- groups --------------------------------------------------
+group           SIO2 type 7 8 9
+group           FKM type 1 2 3 4 5 6
+region          anchor_region block INF INF INF INF 0.0 30.0
+group           anchor region anchor_region
+group           anchor subtract anchor SIO2
+group           mobile_FKM subtract FKM anchor
+
+group2ndx       FKM.ndx FKM
+
+# ---- parameters ----------------------------------------------
+variable        T      equal 300.0
+variable        tdamp  equal 100.0
+variable        Kpull  equal 100.0
+variable        Kfkm   equal 10.0
+variable        Kxy    equal 100.0
+variable        vpull  equal 1.0e-3
+variable        dist   equal 200.0
+variable        z0     equal 50.618
+variable        zf     equal ${z0}+${dist}
+variable        x0     equal 51.594
+variable        y0     equal 52.935
+variable        Nrun   index 200000
+
+velocity        anchor set 0.0 0.0 0.0
+
+fix             nve_sio2 SIO2 nve
+fix             nvt_matrix mobile_FKM nvt temp ${T} ${T} ${tdamp}
+fix             freeze_anchor anchor setforce 0.0 0.0 0.0
+fix             Colvars all colvars colvars.inp output smd
+fix_modify      Colvars energy yes
+
+variable        Step   equal step
+variable        Tps    equal step*0.001
+variable        z_sio2 equal xcm(SIO2,z)
+variable        x_sio2 equal xcm(SIO2,x)
+variable        y_sio2 equal xcm(SIO2,y)
+variable        z_fkm  equal xcm(FKM,z)
+variable        z_fkm_max equal bound(FKM,zmax)
+variable        z_sio2_min equal bound(SIO2,zmin)
+variable        z_sio2_max equal bound(SIO2,zmax)
+
+thermo          1000
+thermo_style    custom step v_Tps temp pe ke etotal press v_x_sio2 v_y_sio2 v_z_sio2 v_z_fkm v_z_fkm_max v_z_sio2_min v_z_sio2_max
+
+fix             mon all print 1000 "${Step} ${Tps} ${x_sio2} ${y_sio2} ${z_sio2} ${z_fkm} ${z_fkm_max} ${z_sio2_min} ${z_sio2_max}" file smd_monitor.txt screen no
+
+dump            traj all custom 1000 smd_traj.dump id type x y z ix iy iz
+dump_modify     traj sort id flush yes
+
+run             ${Nrun}
+
+write_restart   smd_end.restart
+write_data      smd_end.data
+write_dump      all custom smd_end.dump id type x y z ix iy iz
+
+print           "Colvars SMD pull-out finished."

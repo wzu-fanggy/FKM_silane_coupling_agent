@@ -1,0 +1,28 @@
+# KH550 FKM vs grafted SiO2 vdW-only interaction energy (zero charges)
+units           real
+atom_style      full
+boundary        p p p
+
+package         omp 16
+suffix          omp
+
+pair_style      lj/class2/coul/long 15.5
+bond_style      class2
+angle_style     class2
+dihedral_style  class2
+improper_style  class2
+special_bonds   lj/coul 0 0 1
+kspace_style    pppm 1e-4
+kspace_modify   gewald 0.25
+
+read_data       F:/Lammps-MS/FKM-SIO2-TEST/KH550/static_interface_energy/outputs/data_zero.data
+
+group           FKM type 1 2 3 4 5 7
+group           SIO2 type 6 8 9 10 11 12 13 14
+
+compute         gg FKM group/group SIO2 pair yes
+
+thermo          1
+thermo_style    custom step c_gg
+
+rerun           F:/Lammps-MS/FKM-SIO2-TEST/KH550/static_interface_energy/outputs/last50.dump dump id type x y z ix iy iz box yes

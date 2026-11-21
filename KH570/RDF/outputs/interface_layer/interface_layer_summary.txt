@@ -1,0 +1,12 @@
+frames = 50
+R_surf (half core density) = 15.048 A
+rho_core_SiO2 = 0.0987 atoms/A^3
+bulk_region = 25.12 .. 26.88 A
+FKM bulk number density = 0.09113 atoms/A^3
+FKM bulk mass density = 1.8436 g/cm^3
+r(10%) = 15.125 A
+r(90%) = 16.625 A
+interface thickness delta = 1.500 A
+perturbed layer extends to r = 21.125 A, delta_pert = 6.077 A
+integral excess layer thickness = -1.330 A
+first FKM density peak r = 17.875 A, rho = 0.1027 atoms/A^3

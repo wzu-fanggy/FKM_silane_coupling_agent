@@ -1,0 +1,210 @@
+LAMMPS (4 Jul 2026)
+OMP_NUM_THREADS environment is not set. Defaulting to 1 thread.
+  using 1 OpenMP thread(s) per MPI task
+Loaded 0 plugins from F:\LAMMPS 64-bit 4Jul2026 with GUI\plugins
+# KH550 FKM vs grafted SiO2 vdW-only interaction energy (zero charges)
+units           real
+atom_style      full
+boundary        p p p
+
+package         omp 16
+set 16 OpenMP thread(s) per MPI task
+using multi-threaded neighbor list subroutines
+suffix          omp
+
+pair_style      lj/class2/coul/long 15.5
+bond_style      class2
+angle_style     class2
+dihedral_style  class2
+improper_style  class2
+special_bonds   lj/coul 0 0 1
+kspace_style    pppm 1e-4
+kspace_modify   gewald 0.25
+Updated KSpace settings:
+  KSpace computation is turned:    ON
+  Use MPI collective operations:   OFF
+  Use MPI non-blocking operations: OFF
+  Gewald manually set to:          0.25
+
+read_data       F:/Lammps-MS/FKM-SIO2-TEST/KH550/static_interface_energy/outputs/data_zero.data
+Reading data file ...
+  orthogonal box = (-28.685191 -31.650267 -26.207166) to (29.497832 26.871114 30.629491)
+  1 by 1 by 1 MPI processor grid
+  reading atoms ...
+  17830 atoms
+  reading velocities ...
+  17830 velocities
+  scanning bonds ...
+  4 = max bonds/atom
+  scanning angles ...
+  6 = max angles/atom
+  scanning dihedrals ...
+  21 = max dihedrals/atom
+  scanning impropers ...
+  4 = max impropers/atom
+  orthogonal box = (-28.685191 -31.650267 -26.207166) to (29.497832 26.871114 30.629491)
+  1 by 1 by 1 MPI processor grid
+  reading bonds ...
+  17972 bonds
+  reading angles ...
+  35332 angles
+  reading dihedrals ...
+  51612 dihedrals
+  reading impropers ...
+  22954 impropers
+Finding 1-2 1-3 1-4 neighbors ...
+  special bond factors lj:    0        0        1       
+  special bond factors coul:  0        0        1       
+     4 = max # of 1-2 neighbors
+     9 = max # of 1-3 neighbors
+    13 = max # of special neighbors
+  special bonds CPU = 0.003 seconds
+  read_data CPU = 0.526 seconds
+
+group           FKM type 1 2 3 4 5 7
+16080 atoms in group FKM
+group           SIO2 type 6 8 9 10 11 12 13 14
+1750 atoms in group SIO2
+
+compute         gg FKM group/group SIO2 pair yes
+
+thermo          1
+thermo_style    custom step c_gg
+
+rerun           F:/Lammps-MS/FKM-SIO2-TEST/KH550/static_interface_energy/outputs/last50.dump dump id type x y z ix iy iz box yes
+WARNING: No fixes with time integration, atoms won't move
+For more information see https://docs.lammps.org/err0028 (src/verlet.cpp:60)
+PPPM initialization ...
+WARNING: Using kspace solver on system with no charge (src/kspace.cpp:316)
+  using 12-bit tables for long-range coulomb
+  G vector (1/distance) = 0.25
+  grid = 15 15 15
+  stencil order = 5
+  estimated absolute RMS force accuracy = 0
+  estimated relative force accuracy = 0
+  using double precision FFTW3
+  3d grid and FFT values/proc = 8000 3375
+Generated 91 of 91 mixed pair_coeff terms from sixthpower/geometric mixing rule
+Last active /omp style is kspace_style pppm/omp
+Neighbor list info ...
+  update: every = 1 steps, delay = 0 steps, check = yes
+  max neighbors/atom: 2000, page size: 100000
+  master list distance cutoff = 17.5
+  ghost atom cutoff = 17.5
+  binsize = 8.75, bins = 7 7 7
+  2 neighbor lists, perpetual/occasional/extra = 1 1 0
+  (1) pair lj/class2/coul/long/omp, perpetual
+      attributes: half, newton on, omp
+      pair build: half/bin/newton/omp
+      stencil: half/bin/3d
+      bin: standard
+  (2) compute group/group, occasional, copy from (1)
+      attributes: half, newton on, omp
+      pair build: copy
+      stencil: none
+      bin: none
+Last active /omp style is kspace_style pppm/omp
+Per MPI rank memory allocation (min/avg/max) = 198.1 | 198.1 | 198.1 Mbytes
+   Step          c_gg     
+    151000  -1004.6588    
+Last active /omp style is kspace_style pppm/omp
+    152000  -1004.317     
+Last active /omp style is kspace_style pppm/omp
+    153000  -996.16205    
+Last active /omp style is kspace_style pppm/omp
+    154000  -1008.3584    
+Last active /omp style is kspace_style pppm/omp
+    155000  -996.3453     
+Last active /omp style is kspace_style pppm/omp
+    156000  -1011.2352    
+Last active /omp style is kspace_style pppm/omp
+    157000  -1002.3716    
+Last active /omp style is kspace_style pppm/omp
+    158000  -999.04577    
+Last active /omp style is kspace_style pppm/omp
+    159000  -984.25944    
+Last active /omp style is kspace_style pppm/omp
+    160000  -1000.5111    
+Last active /omp style is kspace_style pppm/omp
+    161000  -992.90171    
+Last active /omp style is kspace_style pppm/omp
+    162000  -991.15251    
+Last active /omp style is kspace_style pppm/omp
+    163000  -981.39816    
+Last active /omp style is kspace_style pppm/omp
+    164000  -989.48032    
+Last active /omp style is kspace_style pppm/omp
+    165000  -979.12886    
+Last active /omp style is kspace_style pppm/omp
+    166000  -999.44965    
+Last active /omp style is kspace_style pppm/omp
+    167000  -994.94021    
+Last active /omp style is kspace_style pppm/omp
+    168000  -982.39347    
+Last active /omp style is kspace_style pppm/omp
+    169000  -986.13153    
+Last active /omp style is kspace_style pppm/omp
+    170000  -976.65456    
+Last active /omp style is kspace_style pppm/omp
+    171000  -1017.9483    
+Last active /omp style is kspace_style pppm/omp
+    172000  -995.4586     
+Last active /omp style is kspace_style pppm/omp
+    173000  -987.31763    
+Last active /omp style is kspace_style pppm/omp
+    174000  -989.89456    
+Last active /omp style is kspace_style pppm/omp
+    175000  -991.24643    
+Last active /omp style is kspace_style pppm/omp
+    176000  -988.55423    
+Last active /omp style is kspace_style pppm/omp
+    177000  -995.49915    
+Last active /omp style is kspace_style pppm/omp
+    178000  -1005.245     
+Last active /omp style is kspace_style pppm/omp
+    179000  -997.53066    
+Last active /omp style is kspace_style pppm/omp
+    180000  -1001.9574    
+Last active /omp style is kspace_style pppm/omp
+    181000  -993.32317    
+Last active /omp style is kspace_style pppm/omp
+    182000  -977.59528    
+Last active /omp style is kspace_style pppm/omp
+    183000  -983.1256     
+Last active /omp style is kspace_style pppm/omp
+    184000  -1004.9814    
+Last active /omp style is kspace_style pppm/omp
+    185000  -976.95205    
+Last active /omp style is kspace_style pppm/omp
+    186000  -982.69866    
+Last active /omp style is kspace_style pppm/omp
+    187000  -995.6058     
+Last active /omp style is kspace_style pppm/omp
+    188000  -973.41296    
+Last active /omp style is kspace_style pppm/omp
+    189000  -987.99665    
+Last active /omp style is kspace_style pppm/omp
+    190000  -979.53429    
+Last active /omp style is kspace_style pppm/omp
+    191000  -999.89729    
+Last active /omp style is kspace_style pppm/omp
+    192000  -1000.1466    
+Last active /omp style is kspace_style pppm/omp
+    193000  -977.08565    
+Last active /omp style is kspace_style pppm/omp
+    194000  -1010.6728    
+Last active /omp style is kspace_style pppm/omp
+    195000  -978.3852     
+Last active /omp style is kspace_style pppm/omp
+    196000  -1008.9837    
+Last active /omp style is kspace_style pppm/omp
+    197000  -1016.7309    
+Last active /omp style is kspace_style pppm/omp
+    198000  -1005.6832    
+Last active /omp style is kspace_style pppm/omp
+    199000  -987.66278    
+Last active /omp style is kspace_style pppm/omp
+    200000  -999.11264    
+Loop time of 8.04938 on 16 procs for 50 steps with 17830 atoms
+
+Total wall time: 0:00:08

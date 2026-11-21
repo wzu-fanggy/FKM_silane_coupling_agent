@@ -1,0 +1,109 @@
+# ============================================================
+# FKM/SiO2 annealing: short NVT + long NPT (cubic box)
+# Temp: 263 K -> 573 K -> 263 K
+# Long cycles use NPT iso 1 atm, box stays cubic
+# Run: cd Anneal && lmp -in anneal.lammps
+# Input : use-op-2.data (same directory)
+# Output: current directory
+# ============================================================
+
+units           real
+atom_style      full
+boundary        p p p
+
+pair_style      lj/class2/coul/long 15.5
+bond_style      class2
+angle_style     class2
+dihedral_style  class2
+improper_style  class2
+special_bonds   lj/coul 0 0 1
+kspace_style    pppm 1e-4
+
+read_data       use-op-2.data
+
+neighbor        0.3 bin
+neigh_modify    delay 0 every 1 check yes
+
+variable        Tlo      equal 263.0
+variable        Thi      equal 573.0
+variable        tdamp_fast equal 500.0
+variable        tdamp_slow equal 1000.0
+variable        tdamp_eq   equal 500.0
+# Polymer systems: 1000-5000 fs is common; 5000 fs is more stable
+variable        pdamp      equal 5000.0
+
+velocity        all create ${Tlo} 4928459 dist gaussian
+
+thermo          1000
+thermo_style    custom step temp pe ke etotal press vol density lx ly lz
+
+# Box/density monitor: instantaneous Lx/Ly/Lz, volume and density
+variable        Lx      equal lx
+variable        Ly      equal ly
+variable        Lz      equal lz
+variable        Vol     equal vol
+variable        Dens    equal density
+variable        Step    equal step
+fix             boxmon  all print 1000 "${Step} ${Lx} ${Ly} ${Lz} ${Vol} ${Dens}" file box_density_monitor.txt screen no
+
+# ---- Phase 1: initial NVT equilibration ----
+timestep        0.5
+fix             init_eq all nvt temp ${Tlo} ${Tlo} ${tdamp_eq}
+run             20000
+unfix           init_eq
+
+# ---- Phase 2: short NVT annealing cycles ----
+timestep        0.5
+variable        i loop 10
+label           shortloop
+
+fix             anneal_up all nvt temp ${Tlo} ${Thi} ${tdamp_fast}
+run             10000
+unfix           anneal_up
+
+fix             anneal_down all nvt temp ${Thi} ${Tlo} ${tdamp_fast}
+run             10000
+unfix           anneal_down
+
+next            i
+jump            SELF shortloop
+
+write_restart   anneal_short.restart
+write_dump      all custom anneal_short.dump id type x y z ix iy iz
+write_data      anneal_short.data
+
+print           ">>> Phase 2 (Short annealing) completed."
+
+# ---- Phase 3: transition equilibration, dt 0.5 -> 1.0 fs ----
+timestep        1.0
+fix             trans_eq all nvt temp ${Tlo} ${Tlo} ${tdamp_eq}
+run             50000
+unfix           trans_eq
+
+print           ">>> Phase 3 (Transition equilibration) completed."
+
+# ---- Phase 4: long NPT annealing cycles (cubic box via iso) ----
+variable        j loop 4
+label           longloop
+
+fix             anneal_up all npt temp ${Tlo} ${Thi} ${tdamp_slow} iso 1.0 1.0 ${pdamp}
+run             200000
+unfix           anneal_up
+
+fix             anneal_down all npt temp ${Thi} ${Tlo} ${tdamp_slow} iso 1.0 1.0 ${pdamp}
+run             200000
+unfix           anneal_down
+
+next            j
+jump            SELF longloop
+
+write_restart   anneal_final.restart
+write_dump      all custom anneal_final.dump id type x y z ix iy iz
+write_data      anneal_final.data
+
+print           ">>> Phase 4 (Long NPT annealing) completed."
+
+print           "=================================================="
+print           "Annealing finished successfully!"
+print           "Outputs are in the current directory."
+print           "=================================================="

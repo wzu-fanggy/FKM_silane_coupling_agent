@@ -1,0 +1,6 @@
+KH550 FKM layer-resolved end-to-end distance
+R_surf=15.08 A, delta_pert=8.29 A
+[CONTACT] Count=3156 <dist>=16.91 A <R_ee>=26.63 A std=8.71 range=5.70-39.35
+[INTERFACE] Count=8416 <dist>=21.04 A <R_ee>=24.18 A std=8.51 range=5.66-36.44
+[BULK] Count=48548 <dist>=34.07 A <R_ee>=22.84 A std=7.52 range=3.50-38.12
+[OUTSIDE] Count=0

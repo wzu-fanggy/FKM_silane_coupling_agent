@@ -1,0 +1,18 @@
+# very loose packing: 150 A cube, 120 optimized pro20 chains
+tolerance 1.5
+filetype pdb
+output KH570-SIO2-FKM-150A-120chains.pdb
+seed 12345
+nloop 400
+maxit 200
+
+structure F:\Lammps-MS\FKM-SIO2-TEST\KH570\packing\packmol\minimized_all.pdb
+  number 1
+  center
+  fixed 75.0 75.0 75.0 0. 0. 0.
+end structure
+
+structure F:\Lammps-MS\FKM-SIO2-TEST\KH570\packing\packmol\pro20_optimized.pdb
+  number 120
+  inside box 0. 0. 0. 150. 150. 150.
+end structure

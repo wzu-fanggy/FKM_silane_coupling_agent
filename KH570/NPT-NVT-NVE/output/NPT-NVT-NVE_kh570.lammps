@@ -1,0 +1,65 @@
+# ============================================================
+# FKM/SiO2 equilibration: NPT 3x200 ps (total 600 ps) -> NVT 500 ps -> NVE 200 ps
+# Input : anneal_final.data (当前文件夹)
+# Random 300 K velocities before NPT, current velocities after
+# ============================================================
+
+units           real
+atom_style      full
+boundary        p p p
+
+pair_style      lj/class2/coul/long 15.5
+bond_style      class2
+angle_style     class2
+dihedral_style  class2
+improper_style  class2
+special_bonds   lj/coul 0 0 1
+kspace_style    pppm 1e-4
+
+read_data       anneal_final.data  # 改为当前文件夹路径
+
+neighbor        0.3 bin
+neigh_modify    delay 0 every 1 check yes
+
+variable        T     equal 300.0
+variable        tdamp equal 100.0
+variable        pdamp equal 5000.0
+
+velocity        all create ${T} 4928459 dist gaussian
+velocity        all zero linear
+
+timestep        1.0
+thermo          1000
+thermo_style    custom step temp pe ke etotal press vol density lx ly lz
+
+# ---- NPT: 3 cycles x 200 ps (total 600 ps) ----
+variable        j loop 3
+label           nptloop
+fix             equil all npt temp ${T} ${T} ${tdamp} iso 1.0 1.0 ${pdamp}
+run             200000
+unfix           equil
+write_restart   npt_cycle_${j}.restart  # 当前文件夹
+write_data      npt_cycle_${j}.data     # 当前文件夹
+print           "NPT cycle ${j} done"
+next            j
+jump            SELF nptloop
+
+# ---- NVT: 500 ps production, current velocities ----
+fix             equil all nvt temp ${T} ${T} ${tdamp}
+run             500000
+unfix           equil
+write_restart   nvt_production.restart  # 当前文件夹
+write_data      nvt_production.data     # 当前文件夹
+write_dump      all custom nvt_production.dump id type x y z ix iy iz  # 当前文件夹
+print           "NVT 500 ps done"
+
+# ---- NVE: 200 ps verification ----
+fix             equil all nve
+run             200000
+unfix           equil
+write_restart   nve_verify.restart  # 当前文件夹
+write_data      nve_verify.data     # 当前文件夹
+write_dump      all custom nve_verify.dump id type x y z ix iy iz  # 当前文件夹
+print           "NVE 200 ps done"
+
+print           "Full equilibration finished successfully"

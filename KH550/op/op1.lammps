@@ -1,0 +1,35 @@
+# ============================================================
+# KH550 PCFF geometry optimization (stage 1)
+# Input : KH550-SIO2-FKM-150A-120chains_typed_PCFF.data
+# Output: use-op-1.data and use-op-1.dump in the KH550/op folder
+# Rerun? Change "1" in the output names to 2, 3, ...
+# ============================================================
+
+units           real
+atom_style      full
+boundary        p p p
+
+pair_style      lj/class2/coul/long 15.5
+bond_style      class2
+angle_style     class2
+dihedral_style  class2
+improper_style  class2
+special_bonds   lj/coul 0 0 1
+kspace_style    pppm 1e-4
+
+read_data       F:/Lammps-MS/FKM-SIO2-TEST/KH550/op/KH550-SIO2-FKM-150A-120chains_typed_PCFF.data
+
+neighbor        0.3 bin
+neigh_modify    delay 0 every 1 check yes
+
+thermo          1000
+thermo_style    custom step temp pe etotal press
+
+min_style       cg
+minimize        1.0e-8 1.0e-8 50000 500000
+
+print           "PCFF-IFF geometry optimization finished."
+print           "Output files: use-op-1.data and use-op-1.dump"
+
+write_dump      all custom F:/Lammps-MS/FKM-SIO2-TEST/KH550/op/use-op-1.dump id type x y z ix iy iz
+write_data      F:/Lammps-MS/FKM-SIO2-TEST/KH550/op/op1/use-op-1.data

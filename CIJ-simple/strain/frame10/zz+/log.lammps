@@ -1,0 +1,362 @@
+LAMMPS (4 Jul 2026)
+  using 16 OpenMP thread(s) per MPI task
+Loaded 0 plugins from F:\LAMMPS 64-bit 4Jul2026 with GUI\plugins
+package gpu 1
+# Cij strain job: zz, strain +0.003
+units           real
+atom_style      full
+boundary        p p p
+
+pair_style      lj/class2/coul/long 15.5
+kspace_style    pppm 1e-4
+bond_style      class2
+angle_style     class2
+dihedral_style  class2
+improper_style  class2
+special_bonds   lj/coul 0 0 1
+
+read_data       ../../../frames/frame10/frame10.data
+Reading data file ...
+  orthogonal box = (21.200176 21.200176 21.200176) to (78.799824 78.799824 78.799824)
+  1 by 1 by 1 MPI processor grid
+  reading atom labelmap ...
+  reading bond labelmap ...
+  reading angle labelmap ...
+  reading dihedral labelmap ...
+  reading improper labelmap ...
+  reading atoms ...
+  17550 atoms
+  reading velocities ...
+  17550 velocities
+  scanning bonds ...
+  4 = max bonds/atom
+  scanning angles ...
+  6 = max angles/atom
+  scanning dihedrals ...
+  21 = max dihedrals/atom
+  scanning impropers ...
+  4 = max impropers/atom
+  orthogonal box = (21.200176 21.200176 21.200176) to (78.799824 78.799824 78.799824)
+  1 by 1 by 1 MPI processor grid
+  reading bonds ...
+  17692 bonds
+  reading angles ...
+  34802 angles
+  reading dihedrals ...
+  50952 dihedrals
+  reading impropers ...
+  22624 impropers
+Finding 1-2 1-3 1-4 neighbors ...
+  special bond factors lj:    0        0        1       
+  special bond factors coul:  0        0        1       
+     4 = max # of 1-2 neighbors
+     9 = max # of 1-3 neighbors
+    13 = max # of special neighbors
+  special bonds CPU = 0.004 seconds
+  read_data CPU = 0.505 seconds
+
+neighbor        0.3 bin
+neigh_modify    delay 0 every 1 check yes
+
+timestep        1.0
+
+velocity        all create 300.0 4928459 dist gaussian
+velocity        all zero linear
+
+change_box all z scale 1.003000 remap
+Changing box ...
+  orthogonal box = (21.200176 21.200176 21.113776) to (78.799824 78.799824 78.886224)
+kspace_style    pppm 1e-4
+
+fix             nvt all nvt temp 300.0 300.0 100.0
+thermo          1000
+thermo_style    custom step temp pe ke etotal press vol density
+run             20000
+
+CITE-CITE-CITE-CITE-CITE-CITE-CITE-CITE-CITE-CITE-CITE-CITE-CITE
+
+Your simulation uses code contributions which should be cited:
+
+- GPU package (short-range, long-range and three-body potentials): https://doi.org/10.1016/j.cpc.2010.12.021, https://doi.org/10.1016/j.cpc.2011.10.012, https://doi.org/10.1016/j.cpc.2013.08.002, https://doi.org/10.1016/j.commatsci.2014.10.068, https://doi.org/10.1016/j.cpc.2016.10.020, https://doi.org/10.3233/APC200086
+
+@Article{Brown11,
+ author = {W. M. Brown and P. Wang and S. J. Plimpton and A. N. Tharrington},
+ title = {Implementing Molecular Dynamics on Hybrid High Performance Computers---Short Range Forces},
+ journal = {Comput.\ Phys.\ Commun.},
+ year =    2011,
+ volume =  182,
+ pages =   {898--911},
+ doi =     {10.1016/j.cpc.2010.12.021}
+}
+
+@Article{Brown12,
+ author = {W. M. Brown and A. Kohlmeyer and S. J. Plimpton and A. N. Tharrington},
+ title = {Implementing Molecular Dynamics on Hybrid High Performance Computers - Particle-Particle Particle-Mesh},
+ journal = {Comput.\ Phys.\ Commun.},
+ year =    2012,
+ volume =  183,
+ doi =     {10.1016/j.cpc.2011.10.012},
+ pages =   {449--459}
+}
+
+@Article{Brown13,
+ author = {W. M. Brown and Y. Masako},
+ title = {Implementing Molecular Dynamics on Hybrid High Performance Computers---Three-Body Potentials},
+ journal = {Comput.\ Phys.\ Commun.},
+ year =    2013,
+ volume =  184,
+ pages =   {2785--2793},
+ doi =     {10.1016/j.cpc.2013.08.002},
+}
+
+@Article{Trung15,
+ author = {T. D. Nguyen and S. J. Plimpton},
+ title = {Accelerating Dissipative Particle Dynamics Simulations for Soft Matter Systems},
+ journal = {Comput.\ Mater.\ Sci.},
+ year =    2015,
+ doi =     {10.1016/j.commatsci.2014.10.068},
+ volume =  100,
+ pages =   {173--180}
+}
+
+@Article{Trung17,
+ author = {T. D. Nguyen},
+ title = {{GPU}-Accelerated {T}ersoff Potentials for Massively Parallel
+    Molecular Dynamics Simulations},
+ journal = {Comput.\ Phys.\ Commun.},
+ year =    2017,
+ doi =     {10.1016/j.cpc.2016.10.020},
+ volume =  212,
+ pages =   {113--122}
+}
+
+@inproceedings{Nikolskiy19,
+ author = {V. Nikolskiy and V. Stegailov},
+ title = {{GPU} Acceleration of Four-Site Water Models in {LAMMPS}},
+ booktitle = {Proceedings of the International Conference on Parallel
+    Computing (ParCo 2019), Prague, Czech Republic},
+ doi =     {10.3233/APC200086},
+ year =    2019
+}
+
+- Type Label Framework: https://doi.org/10.1021/acs.jpcb.3c08419
+
+@Article{Gissinger24,
+ author = {Jacob R. Gissinger, Ilia Nikiforov, Yaser Afshar, Brendon Waters, Moon-ki Choi, Daniel S. Karls, Alexander Stukowski, Wonpil Im, Hendrik Heinz, Axel Kohlmeyer, and Ellad B. Tadmor},
+ title = {Type Label Framework for Bonded Force Fields in LAMMPS},
+ journal = {J. Phys. Chem. B},
+ year =    2024,
+ volume =  128,
+ number =  13,
+ pages =   {3282--3297}
+}
+
+CITE-CITE-CITE-CITE-CITE-CITE-CITE-CITE-CITE-CITE-CITE-CITE-CITE
+
+PPPM initialization ...
+  using 12-bit tables for long-range coulomb
+  G vector (1/distance) = 0.15612432
+  grid = 15 15 15
+  stencil order = 5
+  estimated absolute RMS force accuracy = 0.029774408
+  estimated relative force accuracy = 8.9664746e-05
+  using double precision FFTW3
+  3d grid and FFT values/proc = 8000 3375
+Generated 36 of 36 mixed pair_coeff terms from sixthpower/geometric mixing rule
+Per MPI rank memory allocation (min/avg/max) = 101.8 | 101.8 | 101.8 Mbytes
+   Step          Temp          PotEng         KinEng         TotEng         Press          Volume        Density    
+         0   300           -258544.56      15693.071     -242851.49     -1829.8871      191672.78      1.9046173    
+      1000   299.24457     -258837.53      15653.554     -243183.98     -282.4917       191672.78      1.9046173    
+      2000   300.32096     -258750.3       15709.86      -243040.44      4.6639734      191672.78      1.9046173    
+      3000   299.46936     -258732.98      15665.313     -243067.67     -153.78654      191672.78      1.9046173    
+      4000   300.62961     -258942.67      15726.006     -243216.66     -317.80567      191672.78      1.9046173    
+      5000   300.37639     -258715.58      15712.76      -243002.82     -17.025657      191672.78      1.9046173    
+      6000   299.01777     -258972.69      15641.69      -243331        -747.18131      191672.78      1.9046173    
+      7000   301.16297     -258945.87      15753.906     -243191.96      440.02367      191672.78      1.9046173    
+      8000   298.76798     -258954.16      15628.623     -243325.53      696.7159       191672.78      1.9046173    
+      9000   300.73442     -258900.67      15731.488     -243169.18     -1132.7416      191672.78      1.9046173    
+     10000   297.50365     -258825.86      15562.486     -243263.38     -300.29393      191672.78      1.9046173    
+     11000   302.86194     -258785.77      15842.78      -242942.99     -536.71704      191672.78      1.9046173    
+     12000   300.93527     -258901.14      15741.995     -243159.15     -744.13015      191672.78      1.9046173    
+     13000   300.64745     -258849.94      15726.939     -243123         474.2173       191672.78      1.9046173    
+     14000   297.78824     -258864.19      15577.373     -243286.82     -590.97666      191672.78      1.9046173    
+     15000   297.16124     -258869.94      15544.575     -243325.37     -297.84285      191672.78      1.9046173    
+     16000   300.85674     -258870         15737.887     -243132.11     -779.21502      191672.78      1.9046173    
+     17000   302.9411      -258812.2       15846.92      -242965.28      56.128522      191672.78      1.9046173    
+     18000   300.02933     -258918.46      15694.605     -243223.86     -1061.7007      191672.78      1.9046173    
+     19000   302.2886      -258900.53      15812.788     -243087.74      104.49988      191672.78      1.9046173    
+     20000   300.33041     -258658.86      15710.354     -242948.51     -503.46769      191672.78      1.9046173    
+Loop time of 409.765 on 16 procs for 20000 steps with 17550 atoms
+
+Performance: 4.217 ns/day, 5.691 hours/ns, 48.808 timesteps/s, 856.588 katom-step/s
+97.9% CPU use with 1 MPI tasks x 16 OpenMP threads
+
+MPI task timing breakdown:
+Section |  min time  |  avg time  |  max time  |%varavg| %total
+---------------------------------------------------------------
+Pair    | 55.774     | 55.774     | 55.774     |   0.0 | 13.61
+Bond    | 329.49     | 329.49     | 329.49     |   0.0 | 80.41
+Kspace  | 5.2521     | 5.2521     | 5.2521     |   0.0 |  1.28
+Neigh   | 0.17271    | 0.17271    | 0.17271    |   0.0 |  0.04
+Comm    | 6.1601     | 6.1601     | 6.1601     |   0.0 |  1.50
+Output  | 0.001672   | 0.001672   | 0.001672   |   0.0 |  0.00
+Modify  | 10.456     | 10.456     | 10.456     |   0.0 |  2.55
+Other   |            | 2.462      |            |       |  0.60
+
+Nlocal:          17550 ave       17550 max       17550 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Nghost:          47229 ave       47229 max       47229 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Neighs:              0 ave           0 max           0 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+
+Total # of neighbors = 0
+Ave neighs/atom = 0
+Ave special neighs/atom = 5.9822222
+Neighbor list builds = 7142
+Dangerous builds = 0
+
+reset_timestep  0
+
+compute         T all temp
+compute         p all pressure T virial
+fix             av all ave/time 1000 80 80000 c_p[1] c_p[2] c_p[3] c_p[4] c_p[5] c_p[6]                 file stress_zz_+.txt mode scalar
+run             80000
+PPPM initialization ...
+  using 12-bit tables for long-range coulomb
+  G vector (1/distance) = 0.15612432
+  grid = 15 15 15
+  stencil order = 5
+  estimated absolute RMS force accuracy = 0.029774408
+  estimated relative force accuracy = 8.9664746e-05
+  using double precision FFTW3
+  3d grid and FFT values/proc = 8000 3375
+Generated 36 of 36 mixed pair_coeff terms from sixthpower/geometric mixing rule
+Per MPI rank memory allocation (min/avg/max) = 101.8 | 101.8 | 101.8 Mbytes
+   Step          Temp          PotEng         KinEng         TotEng         Press          Volume        Density    
+         0   300.33041     -258658.86      15710.354     -242948.51     -503.46769      191672.78      1.9046173    
+      1000   296.72817     -258823.15      15521.92      -243301.23     -1591.1841      191672.78      1.9046173    
+      2000   300.84637     -258585.76      15737.344     -242848.42     -974.98176      191672.78      1.9046173    
+      3000   298.37403     -259042.53      15608.016     -243434.51     -196.185        191672.78      1.9046173    
+      4000   300.37477     -258877.62      15712.675     -243164.95      734.50734      191672.78      1.9046173    
+      5000   301.66269     -258793.73      15780.047     -243013.68     -290.77583      191672.78      1.9046173    
+      6000   301.20783     -258888.2       15756.253     -243131.95      7.1767765      191672.78      1.9046173    
+      7000   302.58425     -258979.9       15828.253     -243151.64      178.7463       191672.78      1.9046173    
+      8000   300.26163     -258845.81      15706.757     -243139.06     -950.3385       191672.78      1.9046173    
+      9000   298.67191     -258841.38      15623.598     -243217.78     -1513.9409      191672.78      1.9046173    
+     10000   300.83819     -258871.96      15736.916     -243135.04      659.95107      191672.78      1.9046173    
+     11000   300.402       -258834.25      15714.1       -243120.15      223.51826      191672.78      1.9046173    
+     12000   302.51932     -258802.46      15824.857     -242977.61     -644.49855      191672.78      1.9046173    
+     13000   297.12593     -258653.17      15542.727     -243110.45      275.24946      191672.78      1.9046173    
+     14000   301.4245      -258797.37      15767.587     -243029.79      1.5084539      191672.78      1.9046173    
+     15000   299.51022     -258952.26      15667.45      -243284.81     -25.358215      191672.78      1.9046173    
+     16000   297.20799     -258834.99      15547.02      -243287.97     -107.85807      191672.78      1.9046173    
+     17000   301.42688     -258757.5       15767.711     -242989.79      406.84803      191672.78      1.9046173    
+     18000   297.95205     -258748.41      15585.942     -243162.47     -1108.1312      191672.78      1.9046173    
+     19000   296.30847     -258860.59      15499.966     -243360.62     -965.80753      191672.78      1.9046173    
+     20000   299.61455     -258939.94      15672.908     -243267.03     -708.94747      191672.78      1.9046173    
+     21000   298.53891     -258626.91      15616.641     -243010.26     -142.79963      191672.78      1.9046173    
+     22000   300.32801     -259013.81      15710.229     -243303.58     -314.22369      191672.78      1.9046173    
+     23000   301.40279     -258982.34      15766.451     -243215.89     -552.1029       191672.78      1.9046173    
+     24000   299.63226     -258719.41      15673.834     -243045.58     -425.86502      191672.78      1.9046173    
+     25000   298.02655     -258841.39      15589.839     -243251.56      936.35109      191672.78      1.9046173    
+     26000   299.20379     -258769.86      15651.421     -243118.44     -424.06607      191672.78      1.9046173    
+     27000   300.03787     -258841.7       15695.052     -243146.65     -284.9795       191672.78      1.9046173    
+     28000   301.36807     -258923.31      15764.635     -243158.67     -908.2912       191672.78      1.9046173    
+     29000   303.28448     -258914.74      15864.883     -243049.86      37.813561      191672.78      1.9046173    
+     30000   301.61007     -258879.9       15777.294     -243102.61     -286.20102      191672.78      1.9046173    
+     31000   300.52597     -258638.6       15720.585     -242918.02      124.66518      191672.78      1.9046173    
+     32000   300.38525     -258821.19      15713.223     -243107.97      453.18608      191672.78      1.9046173    
+     33000   299.06022     -258871.2       15643.91      -243227.29     -343.08936      191672.78      1.9046173    
+     34000   302.98199     -258795.93      15849.059     -242946.87     -463.07827      191672.78      1.9046173    
+     35000   298.75603     -258740.63      15627.998     -243112.63     -154.88341      191672.78      1.9046173    
+     36000   302.13165     -258754.56      15804.578     -242949.98     -266.60568      191672.78      1.9046173    
+     37000   298.61917     -258970.41      15620.839     -243349.57     -718.60713      191672.78      1.9046173    
+     38000   301.54643     -258867.71      15773.965     -243093.75     -427.41411      191672.78      1.9046173    
+     39000   303.01954     -258753.17      15851.023     -242902.15     -814.26319      191672.78      1.9046173    
+     40000   298.49048     -258951.77      15614.107     -243337.66     -748.07089      191672.78      1.9046173    
+     41000   301.15786     -258617.87      15753.639     -242864.23     -543.33697      191672.78      1.9046173    
+     42000   297.6973      -258753.7       15572.616     -243181.08     -115.53543      191672.78      1.9046173    
+     43000   299.47418     -258792.47      15665.565     -243126.91     -259.13742      191672.78      1.9046173    
+     44000   300.81664     -258823.23      15735.789     -243087.44      21.761197      191672.78      1.9046173    
+     45000   296.54925     -258787.04      15512.561     -243274.48     -727.59842      191672.78      1.9046173    
+     46000   299.58636     -258731.2       15671.433     -243059.76     -19.363839      191672.78      1.9046173    
+     47000   302.76607     -258731.9       15837.764     -242894.13      251.78062      191672.78      1.9046173    
+     48000   301.65969     -258720.92      15779.889     -242941.03     -397.68513      191672.78      1.9046173    
+     49000   299.91947     -259024.53      15688.858     -243335.68      760.79679      191672.78      1.9046173    
+     50000   298.66178     -258956.18      15623.068     -243333.11     -119.10019      191672.78      1.9046173    
+     51000   301.57552     -258863.78      15775.487     -243088.29     -903.23437      191672.78      1.9046173    
+     52000   302.13667     -258717.75      15804.841     -242912.91      78.45443       191672.78      1.9046173    
+     53000   297.98941     -258881.42      15587.896     -243293.52      645.3728       191672.78      1.9046173    
+     54000   296.82248     -258854.43      15526.854     -243327.58     -688.50788      191672.78      1.9046173    
+     55000   298.33577     -258782.52      15606.015     -243176.5       247.48504      191672.78      1.9046173    
+     56000   300.64947     -258693.57      15727.045     -242966.52     -323.22391      191672.78      1.9046173    
+     57000   299.36885     -258988.15      15660.055     -243328.09     -229.68898      191672.78      1.9046173    
+     58000   300.59919     -258928.2       15724.414     -243203.79     -34.210443      191672.78      1.9046173    
+     59000   299.89528     -258853.64      15687.593     -243166.05     -893.43963      191672.78      1.9046173    
+     60000   300.84491     -258842.04      15737.268     -243104.77     -243.95898      191672.78      1.9046173    
+     61000   299.68213     -258883.45      15676.443     -243207         486.50346      191672.78      1.9046173    
+     62000   301.80813     -258703.52      15787.654     -242915.86      334.68313      191672.78      1.9046173    
+     63000   301.62701     -258724.48      15778.18      -242946.3      -411.19228      191672.78      1.9046173    
+     64000   300.72187     -258928.95      15730.832     -243198.12      405.54582      191672.78      1.9046173    
+     65000   301.39242     -258688.3       15765.909     -242922.39      23.755255      191672.78      1.9046173    
+     66000   300.94139     -258758.15      15742.315     -243015.84      48.802353      191672.78      1.9046173    
+     67000   301.09827     -258846.26      15750.522     -243095.74      124.52147      191672.78      1.9046173    
+     68000   301.65598     -258866.54      15779.695     -243086.85      9.5424695      191672.78      1.9046173    
+     69000   297.80264     -258860.31      15578.126     -243282.18     -74.778426      191672.78      1.9046173    
+     70000   297.6288      -258733.49      15569.033     -243164.45      149.78689      191672.78      1.9046173    
+     71000   300.31918     -258837.3       15709.767     -243127.53      569.93561      191672.78      1.9046173    
+     72000   302.4487      -258748.66      15821.163     -242927.5       144.31039      191672.78      1.9046173    
+     73000   299.88795     -258850.19      15687.209     -243162.98      234.96366      191672.78      1.9046173    
+     74000   302.41198     -258771.29      15819.242     -242952.05     -248.04106      191672.78      1.9046173    
+     75000   301.85288     -258973.75      15789.995     -243183.75     -400.06433      191672.78      1.9046173    
+     76000   300.47261     -258705.02      15717.793     -242987.23     -1103.7941      191672.78      1.9046173    
+     77000   300.68879     -258883.27      15729.101     -243154.17     -426.0208       191672.78      1.9046173    
+     78000   299.60821     -258665.75      15672.576     -242993.17      549.15255      191672.78      1.9046173    
+     79000   298.88064     -258761.04      15634.517     -243126.53     -334.35487      191672.78      1.9046173    
+     80000   298.40025     -258711.7       15609.387     -243102.31     -449.36818      191672.78      1.9046173    
+Loop time of 1641.52 on 16 procs for 80000 steps with 17550 atoms
+
+Performance: 4.211 ns/day, 5.700 hours/ns, 48.735 timesteps/s, 855.305 katom-step/s
+97.7% CPU use with 1 MPI tasks x 16 OpenMP threads
+
+MPI task timing breakdown:
+Section |  min time  |  avg time  |  max time  |%varavg| %total
+---------------------------------------------------------------
+Pair    | 224.81     | 224.81     | 224.81     |   0.0 | 13.70
+Bond    | 1319.1     | 1319.1     | 1319.1     |   0.0 | 80.36
+Kspace  | 20.895     | 20.895     | 20.895     |   0.0 |  1.27
+Neigh   | 0.69039    | 0.69039    | 0.69039    |   0.0 |  0.04
+Comm    | 24.497     | 24.497     | 24.497     |   0.0 |  1.49
+Output  | 0.006349   | 0.006349   | 0.006349   |   0.0 |  0.00
+Modify  | 41.662     | 41.662     | 41.662     |   0.0 |  2.54
+Other   |            | 9.817      |            |       |  0.60
+
+Nlocal:          17550 ave       17550 max       17550 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Nghost:          47200 ave       47200 max       47200 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Neighs:              0 ave           0 max           0 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+
+Total # of neighbors = 0
+Ave neighs/atom = 0
+Ave special neighs/atom = 5.9822222
+Neighbor list builds = 28268
+Dangerous builds = 0
+
+write_data      end_zz_+.data
+System init for write_data ...
+PPPM initialization ...
+  using 12-bit tables for long-range coulomb
+  G vector (1/distance) = 0.15612432
+  grid = 15 15 15
+  stencil order = 5
+  estimated absolute RMS force accuracy = 0.029774408
+  estimated relative force accuracy = 8.9664746e-05
+  using double precision FFTW3
+  3d grid and FFT values/proc = 8000 3375
+Generated 36 of 36 mixed pair_coeff terms from sixthpower/geometric mixing rule
+print           ">>> zz +0.003 done."
+>>> zz +0.003 done.
+Total wall time: 0:34:12

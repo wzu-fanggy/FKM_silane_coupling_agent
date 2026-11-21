@@ -1,0 +1,4 @@
+﻿Region,Column,A,tau_KWW_ps,beta,C_plateau,tau_mean_ps,tau_mean_ns,tau_data_1e_ps,R_squared,Note
+Contact Layer,contact_C2,0.774946,5452.92,0.4573,0.094475,13044.87,13.0449,NOT_REACHED,0.997066,extrapolated: not fully relaxed in 3000 ps
+Interface Layer,interface_C2,0.72254,1744.46,0.3873,0.159648,6354.75,6.3548,2655,0.998711,extrapolated: not fully relaxed in 3000 ps
+Bulk,bulk_C2,0.624183,499.09,0.4349,0.241743,1338.15,1.3382,1427,0.999404,

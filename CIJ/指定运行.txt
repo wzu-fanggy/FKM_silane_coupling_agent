@@ -1,0 +1,3 @@
+python run_cij_selected.py --frames 5
+
+python run_cij_selected.py --frames 5 --gpu 0 --omp 32

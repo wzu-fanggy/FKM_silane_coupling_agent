@@ -1,0 +1,2 @@
+# Time-averaged data for fix av
+# TimeStep c_p[1] c_p[2] c_p[3] c_p[4] c_p[5] c_p[6]

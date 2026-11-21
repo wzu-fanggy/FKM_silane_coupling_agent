@@ -1,0 +1,21 @@
+﻿Bare FKM/SiO2 interface energy normalized by contact atoms
+R_surf = 15.034 A, delta_pert = 8.591 A, R_cut = 23.625 A
+FKM group types: 1 2 3 4 5 6 | SIO2 group types: 7 8 9
+
+N_contact_atoms_mean = 3764.62
+N_contact_atoms_std = 18.6086
+E_total_mean = -1302.29
+E_total_std = 15.4019
+E_vdw_mean = -969.462
+E_vdw_std = 9.30115
+E_ele_mean = -332.825
+E_ele_std = 14.1475
+E_total_per_contact_atom_mean = -0.34593
+E_total_per_contact_atom_std = 0.00390096
+E_vdw_per_contact_atom_mean = -0.257522
+E_vdw_per_contact_atom_std = 0.00245871
+E_ele_per_contact_atom_mean = -0.0884078
+E_ele_per_contact_atom_std = 0.00370241
+R_surf_A = 15.034
+delta_pert_A = 8.591
+R_cut_A = 23.625

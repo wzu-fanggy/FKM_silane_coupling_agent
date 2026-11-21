@@ -1,0 +1,41 @@
+# ============================================================
+# Auto-exit strict PCFF-IFF minimization (stage 2)
+# Input : F:/Lammps-MS/FKM-SIO2-TEST/pc-op/op1/use-op-1.data
+# Stage 1: CG, exits when energy or force criterion is met
+# Stage 2: HFTN, exits when energy or force criterion is met
+# Output: op1/use-op-2.data and op1/use-op-2.dump
+# ============================================================
+
+units           real
+atom_style      full
+boundary        p p p
+
+pair_style      lj/class2/coul/long 15.5
+bond_style      class2
+angle_style     class2
+dihedral_style  class2
+improper_style  class2
+special_bonds   lj/coul 0 0 1
+kspace_style    pppm 1e-5
+
+read_data       F:/Lammps-MS/FKM-SIO2-TEST/KH570/op/op1/use-op-1.data
+
+neighbor        0.3 bin
+neigh_modify    delay 0 every 1 check yes
+
+thermo          1000
+thermo_style    custom step temp pe etotal press fmax
+
+# Stage 1: energy and force either one met -> auto exit
+min_style       cg
+minimize        1.0e-8 1.0e-4 50000 500000
+
+# Stage 2: high-precision finish, also auto exits on convergence
+min_style       hftn
+minimize        1.0e-10 1.0e-6 30000 300000
+
+print           "Strict minimization finished."
+print           "Output files: use-op-2.data and use-op-2.dump"
+
+write_dump      all custom F:/Lammps-MS/FKM-SIO2-TEST/KH570/op/op1/use-op-2.dump id type x y z ix iy iz
+write_data      F:/Lammps-MS/FKM-SIO2-TEST/KH570/op/op1/op2/use-op-2.data

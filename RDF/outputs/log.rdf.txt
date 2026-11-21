@@ -1,0 +1,231 @@
+LAMMPS (4 Jul 2026)
+OMP_NUM_THREADS environment is not set. Defaulting to 1 thread.
+  using 1 OpenMP thread(s) per MPI task
+Loaded 0 plugins from F:\LAMMPS 64-bit 4Jul2026 with GUI\plugins
+# RDF between FKM and SiO2 via LAMMPS rerun
+units           real
+atom_style      full
+boundary        p p p
+
+package         omp 16
+set 16 OpenMP thread(s) per MPI task
+using multi-threaded neighbor list subroutines
+suffix          omp
+
+pair_style      lj/class2/coul/long 15.5
+bond_style      class2
+angle_style     class2
+dihedral_style  class2
+improper_style  class2
+special_bonds   lj/coul 0 0 1
+kspace_style    pppm 1e-4
+
+read_data       F:/Lammps-MS/FKM-SIO2-TEST/RDF/data/nve_verify.data
+Reading data file ...
+  orthogonal box = (21.200176 21.200176 21.200176) to (78.799824 78.799824 78.799824)
+  1 by 1 by 1 MPI processor grid
+  reading atom labelmap ...
+  reading bond labelmap ...
+  reading angle labelmap ...
+  reading dihedral labelmap ...
+  reading improper labelmap ...
+  reading atoms ...
+  17550 atoms
+  reading velocities ...
+  17550 velocities
+  scanning bonds ...
+  4 = max bonds/atom
+  scanning angles ...
+  6 = max angles/atom
+  scanning dihedrals ...
+  21 = max dihedrals/atom
+  scanning impropers ...
+  4 = max impropers/atom
+  orthogonal box = (21.200176 21.200176 21.200176) to (78.799824 78.799824 78.799824)
+  1 by 1 by 1 MPI processor grid
+  reading bonds ...
+  17692 bonds
+  reading angles ...
+  34802 angles
+  reading dihedrals ...
+  50952 dihedrals
+  reading impropers ...
+  22624 impropers
+Finding 1-2 1-3 1-4 neighbors ...
+  special bond factors lj:    0        0        1       
+  special bond factors coul:  0        0        1       
+     4 = max # of 1-2 neighbors
+     9 = max # of 1-3 neighbors
+    13 = max # of special neighbors
+  special bonds CPU = 0.005 seconds
+  read_data CPU = 0.542 seconds
+
+group           FKM type 1 2 3 4 5 6
+16080 atoms in group FKM
+group           SIO2 type 7 8 9
+1470 atoms in group SIO2
+
+compute         rdfall all rdf 100 1 7 1 8 1 9 2 7 2 8 2 9 3 7 3 8 3 9 4 7 4 8 4 9 5 7 5 8 5 9 6 7 6 8 6 9
+fix             av all ave/time 1000 1 1000 c_rdfall[*] ave running mode vector file F:/Lammps-MS/FKM-SIO2-TEST/RDF/outputs/rdf_avg.txt
+
+thermo          1000
+thermo_style    custom step
+
+rerun           F:/Lammps-MS/FKM-SIO2-TEST/RDF/traj/last50.dump dump id type x y z ix iy iz box yes
+
+CITE-CITE-CITE-CITE-CITE-CITE-CITE-CITE-CITE-CITE-CITE-CITE-CITE
+
+Your simulation uses code contributions which should be cited:
+
+- Type Label Framework: https://doi.org/10.1021/acs.jpcb.3c08419
+
+@Article{Gissinger24,
+ author = {Jacob R. Gissinger, Ilia Nikiforov, Yaser Afshar, Brendon Waters, Moon-ki Choi, Daniel S. Karls, Alexander Stukowski, Wonpil Im, Hendrik Heinz, Axel Kohlmeyer, and Ellad B. Tadmor},
+ title = {Type Label Framework for Bonded Force Fields in LAMMPS},
+ journal = {J. Phys. Chem. B},
+ year =    2024,
+ volume =  128,
+ number =  13,
+ pages =   {3282--3297}
+}
+
+CITE-CITE-CITE-CITE-CITE-CITE-CITE-CITE-CITE-CITE-CITE-CITE-CITE
+
+WARNING: No fixes with time integration, atoms won't move
+For more information see https://docs.lammps.org/err0028 (src/verlet.cpp:60)
+PPPM initialization ...
+  using 12-bit tables for long-range coulomb
+  G vector (1/distance) = 0.15618307
+  grid = 15 15 15
+  stencil order = 5
+  estimated absolute RMS force accuracy = 0.029687883
+  estimated relative force accuracy = 8.9404179e-05
+  using double precision FFTW3
+  3d grid and FFT values/proc = 8000 3375
+Generated 36 of 36 mixed pair_coeff terms from sixthpower/geometric mixing rule
+Last active /omp style is kspace_style pppm/omp
+Neighbor list info ...
+  update: every = 1 steps, delay = 0 steps, check = yes
+  max neighbors/atom: 2000, page size: 100000
+  master list distance cutoff = 17.5
+  ghost atom cutoff = 17.5
+  binsize = 8.75, bins = 7 7 7
+  2 neighbor lists, perpetual/occasional/extra = 1 1 0
+  (1) pair lj/class2/coul/long/omp, perpetual
+      attributes: half, newton on, omp
+      pair build: half/bin/newton/omp
+      stencil: half/bin/3d
+      bin: standard
+  (2) compute rdf/omp, occasional, copy from (1)
+      attributes: half, newton on, omp
+      pair build: copy
+      stencil: none
+      bin: none
+Last active /omp style is kspace_style pppm/omp
+Per MPI rank memory allocation (min/avg/max) = 271.6 | 271.6 | 271.6 Mbytes
+   Step    
+    151000 
+Last active /omp style is kspace_style pppm/omp
+    152000 
+Last active /omp style is kspace_style pppm/omp
+    153000 
+Last active /omp style is kspace_style pppm/omp
+    154000 
+Last active /omp style is kspace_style pppm/omp
+    155000 
+Last active /omp style is kspace_style pppm/omp
+    156000 
+Last active /omp style is kspace_style pppm/omp
+    157000 
+Last active /omp style is kspace_style pppm/omp
+    158000 
+Last active /omp style is kspace_style pppm/omp
+    159000 
+Last active /omp style is kspace_style pppm/omp
+    160000 
+Last active /omp style is kspace_style pppm/omp
+    161000 
+Last active /omp style is kspace_style pppm/omp
+    162000 
+Last active /omp style is kspace_style pppm/omp
+    163000 
+Last active /omp style is kspace_style pppm/omp
+    164000 
+Last active /omp style is kspace_style pppm/omp
+    165000 
+Last active /omp style is kspace_style pppm/omp
+    166000 
+Last active /omp style is kspace_style pppm/omp
+    167000 
+Last active /omp style is kspace_style pppm/omp
+    168000 
+Last active /omp style is kspace_style pppm/omp
+    169000 
+Last active /omp style is kspace_style pppm/omp
+    170000 
+Last active /omp style is kspace_style pppm/omp
+    171000 
+Last active /omp style is kspace_style pppm/omp
+    172000 
+Last active /omp style is kspace_style pppm/omp
+    173000 
+Last active /omp style is kspace_style pppm/omp
+    174000 
+Last active /omp style is kspace_style pppm/omp
+    175000 
+Last active /omp style is kspace_style pppm/omp
+    176000 
+Last active /omp style is kspace_style pppm/omp
+    177000 
+Last active /omp style is kspace_style pppm/omp
+    178000 
+Last active /omp style is kspace_style pppm/omp
+    179000 
+Last active /omp style is kspace_style pppm/omp
+    180000 
+Last active /omp style is kspace_style pppm/omp
+    181000 
+Last active /omp style is kspace_style pppm/omp
+    182000 
+Last active /omp style is kspace_style pppm/omp
+    183000 
+Last active /omp style is kspace_style pppm/omp
+    184000 
+Last active /omp style is kspace_style pppm/omp
+    185000 
+Last active /omp style is kspace_style pppm/omp
+    186000 
+Last active /omp style is kspace_style pppm/omp
+    187000 
+Last active /omp style is kspace_style pppm/omp
+    188000 
+Last active /omp style is kspace_style pppm/omp
+    189000 
+Last active /omp style is kspace_style pppm/omp
+    190000 
+Last active /omp style is kspace_style pppm/omp
+    191000 
+Last active /omp style is kspace_style pppm/omp
+    192000 
+Last active /omp style is kspace_style pppm/omp
+    193000 
+Last active /omp style is kspace_style pppm/omp
+    194000 
+Last active /omp style is kspace_style pppm/omp
+    195000 
+Last active /omp style is kspace_style pppm/omp
+    196000 
+Last active /omp style is kspace_style pppm/omp
+    197000 
+Last active /omp style is kspace_style pppm/omp
+    198000 
+Last active /omp style is kspace_style pppm/omp
+    199000 
+Last active /omp style is kspace_style pppm/omp
+    200000 
+Loop time of 7.27026 on 16 procs for 50 steps with 17550 atoms
+
+
+print           "RDF DONE"
+RDF DONE
+Total wall time: 0:00:07

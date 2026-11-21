@@ -1,0 +1,10 @@
+metric,value
+final_work_kcal_mol,10586.69
+trapezoid_work_kcal_mol,10572.17
+max_force_kcal_mol_A,168.9
+max_force_nN,11.735
+R_surf_A,15.1
+contact_area_A2,2865.258164
+iss_MPa_preliminary,409.6
+final_interaction_energy_kcal_mol,-573.82
+initial_interaction_energy_kcal_mol,-1260.85

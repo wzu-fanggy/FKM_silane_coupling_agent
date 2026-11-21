@@ -1,0 +1,13 @@
+﻿layer,system,R_surf_contact_A,delta_pert_A,tau_KWW_ps,beta,C_plateau,tau_mean_ps,tau_mean_ns,tau_data_1e_ps,R_squared,note
+contact,bare,15.1,8.6,453.01,0.5698,0.527468,731.65,0.7316,NOT_REACHED,0.997846,
+contact,KH570,15.05,6.08,10000.0,0.3088,0.001319,81534.31,81.5343,NOT_REACHED,0.996541,extrapolated: not fully relaxed in 3000 ps
+contact,KH560,15.095,8.28,403.09,0.746,0.540626,482.04,0.482,NOT_REACHED,0.992116,
+contact,KH550,15.083,8.292,5452.92,0.4573,0.094475,13044.87,13.0449,NOT_REACHED,0.997066,extrapolated: not fully relaxed in 3000 ps
+interface,bare,15.1,8.6,5081.45,0.273,0.0,74403.82,74.4038,NOT_REACHED,0.999377,extrapolated: not fully relaxed in 3000 ps
+interface,KH570,15.05,6.08,5670.97,0.2913,0.0,60120.03,60.12,NOT_REACHED,0.99833,extrapolated: not fully relaxed in 3000 ps
+interface,KH560,15.095,8.28,382.93,0.4048,0.365605,1231.86,1.2319,NOT_REACHED,0.999648,
+interface,KH550,15.083,8.292,1744.46,0.3873,0.159648,6354.75,6.3548,2655,0.998711,extrapolated: not fully relaxed in 3000 ps
+bulk,bare,15.1,8.6,2621.27,0.2814,0.0,32834.3,32.8343,2055,0.999335,extrapolated: not fully relaxed in 3000 ps
+bulk,KH570,15.05,6.08,2243.25,0.3072,0.0,18712.16,18.7122,1734,0.999762,extrapolated: not fully relaxed in 3000 ps
+bulk,KH560,15.095,8.28,1172.48,0.2963,0.088405,11486.87,11.4869,1761,0.999823,extrapolated: not fully relaxed in 3000 ps
+bulk,KH550,15.083,8.292,499.09,0.4349,0.241743,1338.15,1.3382,1427,0.999404,

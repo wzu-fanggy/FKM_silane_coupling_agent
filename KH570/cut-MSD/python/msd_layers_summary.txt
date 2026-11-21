@@ -1,0 +1,27 @@
+============================================================
+Layer-resolved MSD Summary
+============================================================
+Trajectory: F:\Lammps-MS\FKM-SIO2-TEST\KH570\cut-MSD\nvt_500ps_traj.dump
+Frames: 501 @ 1 ps/frame = 500 ps
+Box: 58.58 x 58.77 x 56.56 A
+R_surf = 15.1 A
+
+Layer definitions:
+  contact: 15.1 - 18.1 A
+  interface: 18.1 - 21.1 A
+  bulk: 21.1 - 1000000.0 A
+
+Atom counts:
+  contact: 794 atoms
+  interface: 1153 atoms
+  bulk: 14121 atoms
+
+Diffusion coefficients (Einstein, dt=200-400 ps):
+  contact: D = 1.020e-07 cm^2/s (relative = 0.52)
+  interface: D = 1.351e-07 cm^2/s (relative = 0.68)
+  bulk: D = 1.975e-07 cm^2/s (relative = 1.00)
+
+MSD at key time lags:
+  contact: MSD(100)=1.323 A^2, MSD(300)=1.785 A^2
+  interface: MSD(100)=1.699 A^2, MSD(300)=2.379 A^2
+  bulk: MSD(100)=2.417 A^2, MSD(300)=3.482 A^2

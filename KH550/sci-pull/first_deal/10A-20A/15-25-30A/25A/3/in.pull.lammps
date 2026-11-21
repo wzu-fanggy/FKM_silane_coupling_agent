@@ -1,0 +1,58 @@
+# ============================================================
+# Uniaxial pull-out, 25 A/ps, frame 3
+# SiO2 pulled +Z (8000 steps at 0.5 fs)
+# Force and SiO2-FKM interface energy every 200 steps
+# ============================================================
+
+units           real
+atom_style      full
+boundary        p p f
+
+pair_style      lj/class2/coul/long 15.5
+kspace_style    pppm 1e-4
+kspace_modify   slab 3.0
+bond_style      class2
+angle_style     class2
+dihedral_style  class2
+improper_style  class2
+special_bonds   lj/coul 0 0 1
+
+read_data       frame3.data
+
+neighbor        0.3 bin
+neigh_modify    delay 0 every 1 check yes
+
+group           sio2   type 6 8 9 10 11 12 13 14
+group           matrix type 1 2 3 4 5 7
+
+region          clamp block INF INF INF INF INF -1.207166 units box
+group           clamp region clamp
+group           clamp subtract clamp sio2
+group           mobile subtract matrix clamp
+
+fix             freeze clamp setforce 0 0 0
+fix             pull  sio2 move linear 0 0 0.025000
+fix             temp  mobile nvt temp 300.0 300.0 100.0
+fix             wallz all wall/reflect zlo -26.207165820270379 zhi 308.946481435828787
+
+variable        z0     equal xcm(sio2,z)
+variable        disp   equal xcm(sio2,z)-${z0}
+compute         fsio   sio2 reduce sum fz
+variable        force  equal -c_fsio
+compute         gg     sio2 group/group matrix pair yes kspace yes
+variable        egg    equal c_gg
+fix             out all print 200 "$(step) $(v_disp) $(v_force) $(v_egg)" &
+                file force_curve.txt screen no
+
+dump            traj all custom 200 traj.dump id type x y z vx vy vz ix iy iz
+dump_modify     traj sort id
+dump_modify     traj flush yes
+
+thermo          1000
+thermo_style    custom step temp pe press v_disp v_force
+
+timestep        0.5
+run             8000
+
+write_data      pull_end.data
+print           ">>> 25 A/ps frame 3 pull-out completed."

@@ -1,0 +1,5 @@
+bare vs KH570 RMDD layer comparison
+Core               bare R=[0.00,15.03] rho=2.8544 atoms=1416 | KH570 R=[0.00,15.05] rho=2.8754 atoms=1431
+Contact            bare R=[15.03,18.03] rho=1.9593 atoms=1025 | KH570 R=[15.05,18.05] rho=1.7740 atoms=1041
+Interface          bare R=[18.03,23.62] rho=1.8399 atoms=2790 | KH570 R=[18.05,21.13] rho=1.7053 atoms=1291
+Bulk               bare R=[23.62,48.73] rho=0.5771 atoms=12319 | KH570 R=[21.13,48.42] rho=0.6509 atoms=14087

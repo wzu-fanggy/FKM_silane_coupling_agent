@@ -1,0 +1,72 @@
+# ============================================================
+# FKM/SiO2 equilibration: NPT 3x200 ps (total 600 ps) -> NVT 500 ps -> NVE 200 ps
+# Input : F:/Lammps-MS/FKM-SIO2-TEST/NPT-NVT-NVE/anneal_final.data
+# Random 300 K velocities before NPT, current velocities after
+# ============================================================
+
+units           real
+atom_style      full
+boundary        p p p
+
+pair_style      lj/class2/coul/long 15.5
+bond_style      class2
+angle_style     class2
+dihedral_style  class2
+improper_style  class2
+special_bonds   lj/coul 0 0 1
+kspace_style    pppm 1e-4
+
+read_data       F:/Lammps-MS/FKM-SIO2-TEST/NPT-NVT-NVE/anneal_final.data
+
+neighbor        0.3 bin
+neigh_modify    delay 0 every 1 check yes
+
+variable        T      equal 300.0
+variable        tdamp  equal 100.0
+variable        pdamp  equal 5000.0
+
+velocity        all create ${T} 4928459 dist gaussian
+velocity        all zero linear
+
+timestep        1.0
+thermo          1000
+thermo_style    custom step temp pe ke etotal press vol density lx ly lz
+
+# ---- NPT: 3 cycles x 200 ps (total 600 ps) ----
+variable        j loop 3
+label           nptloop
+
+fix             equil all npt temp ${T} ${T} ${tdamp} iso 1.0 1.0 ${pdamp}
+run             200000
+unfix           equil
+
+write_restart   npt_cycle_${j}.restart
+write_data      npt_cycle_${j}.data
+
+print           "NPT cycle ${j} done"
+
+next            j
+jump            SELF nptloop
+
+# ---- NVT: 500 ps production, current velocities ----
+fix             equil all nvt temp ${T} ${T} ${tdamp}
+run             500000
+unfix           equil
+
+write_restart   nvt_production.restart
+write_data      nvt_production.data
+write_dump      all custom nvt_production.dump id type x y z ix iy iz
+
+print           "NVT 500 ps done"
+
+# ---- NVE: 200 ps verification ----
+fix             equil all nve
+run             200000
+unfix           equil
+
+write_restart   nve_verify.restart
+write_data      nve_verify.data
+write_dump      all custom nve_verify.dump id type x y z ix iy iz
+
+print           "NVE 200 ps done"
+print           "Full equilibration finished successfully"

@@ -1,0 +1,775 @@
+LAMMPS (4 Jul 2026)
+OMP_NUM_THREADS environment is not set. Defaulting to 1 thread.
+  using 1 OpenMP thread(s) per MPI task
+Loaded 0 plugins from F:\LAMMPS 64-bit 4Jul2026 with GUI\plugins
+# Single-velocity FKM-SiO2 pullout, controlled by Python.
+# Pass on the command line:
+#   -var velZ 0.050   (A/fs, i.e. 50 A/ps)
+#   -var tag  kick50Aps
+#   -var chunk 1000   (steps per monitor/dump interval)
+# Python rewrites ctrl.inc to set stop = 1 (done) or stop = 2 (abandon).
+
+units           real
+atom_style      full
+boundary        p p f
+
+package         omp 16
+set 16 OpenMP thread(s) per MPI task
+using multi-threaded neighbor list subroutines
+suffix          omp
+
+pair_style      lj/class2/coul/long 15.5
+bond_style      class2
+angle_style     class2
+dihedral_style  class2
+improper_style  class2
+special_bonds   lj/coul 0 0 1
+kspace_style    pppm 1e-4
+kspace_modify   slab 3.0
+Updated KSpace settings:
+  KSpace computation is turned:    ON
+  Use MPI collective operations:   OFF
+  Use MPI non-blocking operations: OFF
+  Gewald is determined automatically
+  Slab volfactor manually set to:    3
+
+neighbor        0.3 bin
+neigh_modify    delay 0 every 1 check yes
+
+read_data       F:/Lammps-MS/FKM-SIO2-TEST/pull/NEW/sci/pull_equil_600Aadd.data
+Reading data file ...
+  orthogonal box = (21.200176 21.200176 0) to (78.799824 78.799824 1000)
+  1 by 1 by 1 MPI processor grid
+  reading atom labelmap ...
+  reading bond labelmap ...
+  reading angle labelmap ...
+  reading dihedral labelmap ...
+  reading improper labelmap ...
+  reading atoms ...
+  17550 atoms
+  reading velocities ...
+  17550 velocities
+  scanning bonds ...
+  4 = max bonds/atom
+  scanning angles ...
+  6 = max angles/atom
+  scanning dihedrals ...
+  21 = max dihedrals/atom
+  scanning impropers ...
+  4 = max impropers/atom
+  orthogonal box = (21.200176 21.200176 0) to (78.799824 78.799824 1000)
+  1 by 1 by 1 MPI processor grid
+  reading bonds ...
+  17692 bonds
+  reading angles ...
+  34802 angles
+  reading dihedrals ...
+  50952 dihedrals
+  reading impropers ...
+  22624 impropers
+Finding 1-2 1-3 1-4 neighbors ...
+  special bond factors lj:    0        0        1       
+  special bond factors coul:  0        0        1       
+     4 = max # of 1-2 neighbors
+     9 = max # of 1-3 neighbors
+    13 = max # of special neighbors
+  special bonds CPU = 0.004 seconds
+  read_data CPU = 0.536 seconds
+
+group           SIO2 type 7 8 9
+1470 atoms in group SIO2
+group           FKM type 1 2 3 4 5 6
+16080 atoms in group FKM
+
+compute         gg FKM group/group SIO2 pair yes kspace yes
+compute         zmax all reduce max z
+
+variable        zmt equal c_zmax
+variable        eabs0 equal abs(c_gg)
+
+timestep        0.5
+velocity        SIO2 set 0.0 0.0 ${velZ}
+velocity        SIO2 set 0.0 0.0 0.035000
+fix             nve all nve
+
+variable        tps equal step*0.0005
+variable        zs equal xcm(SIO2,z)
+variable        eabs equal abs(c_gg)
+
+thermo          1000
+thermo_style    custom step v_tps v_zs v_eabs
+run             0
+
+CITE-CITE-CITE-CITE-CITE-CITE-CITE-CITE-CITE-CITE-CITE-CITE-CITE
+
+Your simulation uses code contributions which should be cited:
+
+- Type Label Framework: https://doi.org/10.1021/acs.jpcb.3c08419
+
+@Article{Gissinger24,
+ author = {Jacob R. Gissinger, Ilia Nikiforov, Yaser Afshar, Brendon Waters, Moon-ki Choi, Daniel S. Karls, Alexander Stukowski, Wonpil Im, Hendrik Heinz, Axel Kohlmeyer, and Ellad B. Tadmor},
+ title = {Type Label Framework for Bonded Force Fields in LAMMPS},
+ journal = {J. Phys. Chem. B},
+ year =    2024,
+ volume =  128,
+ number =  13,
+ pages =   {3282--3297}
+}
+
+CITE-CITE-CITE-CITE-CITE-CITE-CITE-CITE-CITE-CITE-CITE-CITE-CITE
+
+PPPM initialization ...
+  using 12-bit tables for long-range coulomb
+  G vector (1/distance) = 0.14576195
+  grid = 15 15 400
+  stencil order = 5
+  estimated absolute RMS force accuracy = 0.015173798
+  estimated relative force accuracy = 4.5695442e-05
+  using double precision FFTW3
+  3d grid and FFT values/proc = 160800 90000
+Generated 36 of 36 mixed pair_coeff terms from sixthpower/geometric mixing rule
+Last active /omp style is kspace_style pppm/omp
+Neighbor list info ...
+  update: every = 1 steps, delay = 0 steps, check = yes
+  max neighbors/atom: 2000, page size: 100000
+  master list distance cutoff = 15.8
+  ghost atom cutoff = 15.8
+  binsize = 7.9, bins = 8 8 127
+  2 neighbor lists, perpetual/occasional/extra = 1 1 0
+  (1) pair lj/class2/coul/long/omp, perpetual
+      attributes: half, newton on, omp
+      pair build: half/bin/newton/omp
+      stencil: half/bin/3d
+      bin: standard
+  (2) compute group/group, occasional, copy from (1)
+      attributes: half, newton on, omp
+      pair build: copy
+      stencil: none
+      bin: none
+Per MPI rank memory allocation (min/avg/max) = 139 | 139 | 139 Mbytes
+   Step         v_tps           v_zs          v_eabs    
+         0   0              50.593925      1260.3656    
+Loop time of 4e-06 on 16 procs for 0 steps with 17550 atoms
+
+0.0% CPU use with 1 MPI tasks x 16 OpenMP threads
+
+MPI task timing breakdown:
+Section |  min time  |  avg time  |  max time  |%varavg| %total
+---------------------------------------------------------------
+Pair    | 0          | 0          | 0          |   0.0 |  0.00
+Bond    | 0          | 0          | 0          |   0.0 |  0.00
+Kspace  | 0          | 0          | 0          |   0.0 |  0.00
+Neigh   | 0          | 0          | 0          |   0.0 |  0.00
+Comm    | 0          | 0          | 0          |   0.0 |  0.00
+Output  | 0          | 0          | 0          |   0.0 |  0.00
+Modify  | 0          | 0          | 0          |   0.0 |  0.00
+Other   |            | 4e-06      |            |       |100.00
+
+Nlocal:          17550 ave       17550 max       17550 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Nghost:          24273 ave       24273 max       24273 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Neighs:     1.1803e+07 ave  1.1803e+07 max  1.1803e+07 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+
+Total # of neighbors = 11802957
+Ave neighs/atom = 672.53316
+Ave special neighs/atom = 5.9822222
+Neighbor list builds = 0
+Dangerous builds = 0
+
+variable        Z0 equal ${zmt}
+variable        Z0 equal 84.7289019626364
+variable        E0 equal ${eabs}
+variable        E0 equal 1260.36561513562
+
+dump            traj all custom ${chunk} ${tag}_traj.dump id type x y z ix iy iz
+dump            traj all custom 1000 ${tag}_traj.dump id type x y z ix iy iz
+dump            traj all custom 1000 kick35Aps_traj.dump id type x y z ix iy iz
+fix             monitor all print ${chunk} "${tps} ${zs} ${eabs}" file ${tag}_monitor.txt screen no
+fix             monitor all print 1000 "${tps} ${zs} ${eabs}" file ${tag}_monitor.txt screen no
+fix             monitor all print 1000 "${tps} ${zs} ${eabs}" file kick35Aps_monitor.txt screen no
+
+print           "READY ${tag} Z0=${Z0} E0=${E0}"
+READY kick35Aps Z0=84.7289019626364 E0=1260.36561513562
+
+variable        i loop 1000000
+variable        stop equal 0
+label           run_loop
+
+run             ${chunk}
+run             1000
+PPPM initialization ...
+  using 12-bit tables for long-range coulomb
+  G vector (1/distance) = 0.14576195
+  grid = 15 15 400
+  stencil order = 5
+  estimated absolute RMS force accuracy = 0.015173798
+  estimated relative force accuracy = 4.5695442e-05
+  using double precision FFTW3
+  3d grid and FFT values/proc = 160800 90000
+Generated 36 of 36 mixed pair_coeff terms from sixthpower/geometric mixing rule
+Last active /omp style is kspace_style pppm/omp
+Per MPI rank memory allocation (min/avg/max) = 191.6 | 191.6 | 191.6 Mbytes
+   Step         v_tps           v_zs          v_eabs    
+         0   0              50.593925      1260.3656    
+      1000   0.5            62.719222      528.29604    
+Loop time of 40.4891 on 16 procs for 1000 steps with 17550 atoms
+
+Performance: 1.067 ns/day, 22.494 hours/ns, 24.698 timesteps/s, 433.450 katom-step/s
+700.7% CPU use with 1 MPI tasks x 16 OpenMP threads
+
+MPI task timing breakdown:
+Section |  min time  |  avg time  |  max time  |%varavg| %total
+---------------------------------------------------------------
+Pair    | 14.638     | 14.638     | 14.638     |   0.0 | 36.15
+Bond    | 4.6001     | 4.6001     | 4.6001     |   0.0 | 11.36
+Kspace  | 11.132     | 11.132     | 11.132     |   0.0 | 27.49
+Neigh   | 8.7296     | 8.7296     | 8.7296     |   0.0 | 21.56
+Comm    | 0.23842    | 0.23842    | 0.23842    |   0.0 |  0.59
+Output  | 0.048877   | 0.048877   | 0.048877   |   0.0 |  0.12
+Modify  | 0.9745     | 0.9745     | 0.9745     |   0.0 |  2.41
+Other   |            | 0.1269     |            |       |  0.31
+
+Nlocal:          17550 ave       17550 max       17550 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Nghost:          25024 ave       25024 max       25024 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Neighs:    1.14944e+07 ave 1.14944e+07 max 1.14944e+07 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+
+Total # of neighbors = 11494372
+Ave neighs/atom = 654.94997
+Ave special neighs/atom = 5.9822222
+Neighbor list builds = 271
+Dangerous builds = 0
+include         ctrl.inc
+# empty
+if "$(v_stop == 1)" then "jump SELF done"
+if "$(v_stop == 2)" then "jump SELF abandon"
+
+next            i
+jump            SELF run_loop
+
+run             ${chunk}
+run             1000
+PPPM initialization ...
+  using 12-bit tables for long-range coulomb
+  G vector (1/distance) = 0.14576195
+  grid = 15 15 400
+  stencil order = 5
+  estimated absolute RMS force accuracy = 0.015173798
+  estimated relative force accuracy = 4.5695442e-05
+  using double precision FFTW3
+  3d grid and FFT values/proc = 160800 90000
+Generated 36 of 36 mixed pair_coeff terms from sixthpower/geometric mixing rule
+Last active /omp style is kspace_style pppm/omp
+Per MPI rank memory allocation (min/avg/max) = 199.8 | 199.8 | 199.8 Mbytes
+   Step         v_tps           v_zs          v_eabs    
+      1000   0.5            62.719222      528.29604    
+      2000   1              70.750529      367.4297     
+Loop time of 39.0524 on 16 procs for 1000 steps with 17550 atoms
+
+Performance: 1.106 ns/day, 21.696 hours/ns, 25.607 timesteps/s, 449.397 katom-step/s
+669.7% CPU use with 1 MPI tasks x 16 OpenMP threads
+
+MPI task timing breakdown:
+Section |  min time  |  avg time  |  max time  |%varavg| %total
+---------------------------------------------------------------
+Pair    | 13.535     | 13.535     | 13.535     |   0.0 | 34.66
+Bond    | 4.4985     | 4.4985     | 4.4985     |   0.0 | 11.52
+Kspace  | 10.816     | 10.816     | 10.816     |   0.0 | 27.70
+Neigh   | 8.8296     | 8.8296     | 8.8296     |   0.0 | 22.61
+Comm    | 0.23962    | 0.23962    | 0.23962    |   0.0 |  0.61
+Output  | 0.045362   | 0.045362   | 0.045362   |   0.0 |  0.12
+Modify  | 0.96093    | 0.96093    | 0.96093    |   0.0 |  2.46
+Other   |            | 0.1275     |            |       |  0.33
+
+Nlocal:          17550 ave       17550 max       17550 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Nghost:          25844 ave       25844 max       25844 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Neighs:    1.06176e+07 ave 1.06176e+07 max 1.06176e+07 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+
+Total # of neighbors = 10617645
+Ave neighs/atom = 604.99402
+Ave special neighs/atom = 5.9822222
+Neighbor list builds = 293
+Dangerous builds = 0
+include         ctrl.inc
+# empty
+if "$(v_stop == 1)" then "jump SELF done"
+if "$(v_stop == 2)" then "jump SELF abandon"
+
+next            i
+jump            SELF run_loop
+
+run             ${chunk}
+run             1000
+PPPM initialization ...
+  using 12-bit tables for long-range coulomb
+  G vector (1/distance) = 0.14576195
+  grid = 15 15 400
+  stencil order = 5
+  estimated absolute RMS force accuracy = 0.015173798
+  estimated relative force accuracy = 4.5695442e-05
+  using double precision FFTW3
+  3d grid and FFT values/proc = 160800 90000
+Generated 36 of 36 mixed pair_coeff terms from sixthpower/geometric mixing rule
+Last active /omp style is kspace_style pppm/omp
+Per MPI rank memory allocation (min/avg/max) = 199.8 | 199.8 | 199.8 Mbytes
+   Step         v_tps           v_zs          v_eabs    
+      2000   1              70.750529      367.4297     
+      3000   1.5            78.387746      270.97435    
+Loop time of 36.8066 on 16 procs for 1000 steps with 17550 atoms
+
+Performance: 1.174 ns/day, 20.448 hours/ns, 27.169 timesteps/s, 476.817 katom-step/s
+649.0% CPU use with 1 MPI tasks x 16 OpenMP threads
+
+MPI task timing breakdown:
+Section |  min time  |  avg time  |  max time  |%varavg| %total
+---------------------------------------------------------------
+Pair    | 12.268     | 12.268     | 12.268     |   0.0 | 33.33
+Bond    | 4.4554     | 4.4554     | 4.4554     |   0.0 | 12.10
+Kspace  | 10.496     | 10.496     | 10.496     |   0.0 | 28.52
+Neigh   | 8.2189     | 8.2189     | 8.2189     |   0.0 | 22.33
+Comm    | 0.24053    | 0.24053    | 0.24053    |   0.0 |  0.65
+Output  | 0.04187    | 0.04187    | 0.04187    |   0.0 |  0.11
+Modify  | 0.95312    | 0.95312    | 0.95312    |   0.0 |  2.59
+Other   |            | 0.1327     |            |       |  0.36
+
+Nlocal:          17550 ave       17550 max       17550 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Nghost:          26054 ave       26054 max       26054 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Neighs:     9.8707e+06 ave  9.8707e+06 max  9.8707e+06 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+
+Total # of neighbors = 9870695
+Ave neighs/atom = 562.43276
+Ave special neighs/atom = 5.9822222
+Neighbor list builds = 292
+Dangerous builds = 0
+include         ctrl.inc
+# empty
+if "$(v_stop == 1)" then "jump SELF done"
+if "$(v_stop == 2)" then "jump SELF abandon"
+
+next            i
+jump            SELF run_loop
+
+run             ${chunk}
+run             1000
+PPPM initialization ...
+  using 12-bit tables for long-range coulomb
+  G vector (1/distance) = 0.14576195
+  grid = 15 15 400
+  stencil order = 5
+  estimated absolute RMS force accuracy = 0.015173798
+  estimated relative force accuracy = 4.5695442e-05
+  using double precision FFTW3
+  3d grid and FFT values/proc = 160800 90000
+Generated 36 of 36 mixed pair_coeff terms from sixthpower/geometric mixing rule
+Last active /omp style is kspace_style pppm/omp
+Per MPI rank memory allocation (min/avg/max) = 199.8 | 199.8 | 199.8 Mbytes
+   Step         v_tps           v_zs          v_eabs    
+      3000   1.5            78.387746      270.97435    
+      4000   2              85.86885       227.88635    
+Loop time of 36.6334 on 16 procs for 1000 steps with 17550 atoms
+
+Performance: 1.179 ns/day, 20.352 hours/ns, 27.297 timesteps/s, 479.071 katom-step/s
+649.2% CPU use with 1 MPI tasks x 16 OpenMP threads
+
+MPI task timing breakdown:
+Section |  min time  |  avg time  |  max time  |%varavg| %total
+---------------------------------------------------------------
+Pair    | 11.948     | 11.948     | 11.948     |   0.0 | 32.61
+Bond    | 4.3864     | 4.3864     | 4.3864     |   0.0 | 11.97
+Kspace  | 10.431     | 10.431     | 10.431     |   0.0 | 28.47
+Neigh   | 8.4987     | 8.4987     | 8.4987     |   0.0 | 23.20
+Comm    | 0.25031    | 0.25031    | 0.25031    |   0.0 |  0.68
+Output  | 0.039825   | 0.039825   | 0.039825   |   0.0 |  0.11
+Modify  | 0.94748    | 0.94748    | 0.94748    |   0.0 |  2.59
+Other   |            | 0.1323     |            |       |  0.36
+
+Nlocal:          17550 ave       17550 max       17550 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Nghost:          25876 ave       25876 max       25876 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Neighs:    9.27263e+06 ave 9.27263e+06 max 9.27263e+06 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+
+Total # of neighbors = 9272629
+Ave neighs/atom = 528.35493
+Ave special neighs/atom = 5.9822222
+Neighbor list builds = 315
+Dangerous builds = 0
+include         ctrl.inc
+# empty
+if "$(v_stop == 1)" then "jump SELF done"
+if "$(v_stop == 2)" then "jump SELF abandon"
+
+next            i
+jump            SELF run_loop
+
+run             ${chunk}
+run             1000
+PPPM initialization ...
+  using 12-bit tables for long-range coulomb
+  G vector (1/distance) = 0.14576195
+  grid = 15 15 400
+  stencil order = 5
+  estimated absolute RMS force accuracy = 0.015173798
+  estimated relative force accuracy = 4.5695442e-05
+  using double precision FFTW3
+  3d grid and FFT values/proc = 160800 90000
+Generated 36 of 36 mixed pair_coeff terms from sixthpower/geometric mixing rule
+Last active /omp style is kspace_style pppm/omp
+Per MPI rank memory allocation (min/avg/max) = 199.8 | 199.8 | 199.8 Mbytes
+   Step         v_tps           v_zs          v_eabs    
+      4000   2              85.86885       227.88635    
+      5000   2.5            93.202454      165.71323    
+Loop time of 35.813 on 16 procs for 1000 steps with 17550 atoms
+
+Performance: 1.206 ns/day, 19.896 hours/ns, 27.923 timesteps/s, 490.045 katom-step/s
+624.6% CPU use with 1 MPI tasks x 16 OpenMP threads
+
+MPI task timing breakdown:
+Section |  min time  |  avg time  |  max time  |%varavg| %total
+---------------------------------------------------------------
+Pair    | 11.427     | 11.427     | 11.427     |   0.0 | 31.91
+Bond    | 4.3399     | 4.3399     | 4.3399     |   0.0 | 12.12
+Kspace  | 10.462     | 10.462     | 10.462     |   0.0 | 29.21
+Neigh   | 8.24       | 8.24       | 8.24       |   0.0 | 23.01
+Comm    | 0.249      | 0.249      | 0.249      |   0.0 |  0.70
+Output  | 0.041874   | 0.041874   | 0.041874   |   0.0 |  0.12
+Modify  | 0.92351    | 0.92351    | 0.92351    |   0.0 |  2.58
+Other   |            | 0.1302     |            |       |  0.36
+
+Nlocal:          17550 ave       17550 max       17550 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Nghost:          25650 ave       25650 max       25650 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Neighs:    8.80701e+06 ave 8.80701e+06 max 8.80701e+06 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+
+Total # of neighbors = 8807012
+Ave neighs/atom = 501.82405
+Ave special neighs/atom = 5.9822222
+Neighbor list builds = 317
+Dangerous builds = 0
+include         ctrl.inc
+# empty
+if "$(v_stop == 1)" then "jump SELF done"
+if "$(v_stop == 2)" then "jump SELF abandon"
+
+next            i
+jump            SELF run_loop
+
+run             ${chunk}
+run             1000
+PPPM initialization ...
+  using 12-bit tables for long-range coulomb
+  G vector (1/distance) = 0.14576195
+  grid = 15 15 400
+  stencil order = 5
+  estimated absolute RMS force accuracy = 0.015173798
+  estimated relative force accuracy = 4.5695442e-05
+  using double precision FFTW3
+  3d grid and FFT values/proc = 160800 90000
+Generated 36 of 36 mixed pair_coeff terms from sixthpower/geometric mixing rule
+Last active /omp style is kspace_style pppm/omp
+Per MPI rank memory allocation (min/avg/max) = 199.8 | 199.8 | 199.8 Mbytes
+   Step         v_tps           v_zs          v_eabs    
+      5000   2.5            93.202454      165.71323    
+      6000   3              100.44634      163.49441    
+Loop time of 30.7715 on 16 procs for 1000 steps with 17550 atoms
+
+Performance: 1.404 ns/day, 17.095 hours/ns, 32.498 timesteps/s, 570.333 katom-step/s
+699.2% CPU use with 1 MPI tasks x 16 OpenMP threads
+
+MPI task timing breakdown:
+Section |  min time  |  avg time  |  max time  |%varavg| %total
+---------------------------------------------------------------
+Pair    | 10.252     | 10.252     | 10.252     |   0.0 | 33.32
+Bond    | 2.6836     | 2.6836     | 2.6836     |   0.0 |  8.72
+Kspace  | 9.7354     | 9.7354     | 9.7354     |   0.0 | 31.64
+Neigh   | 7.162      | 7.162      | 7.162      |   0.0 | 23.27
+Comm    | 0.23173    | 0.23173    | 0.23173    |   0.0 |  0.75
+Output  | 0.040342   | 0.040342   | 0.040342   |   0.0 |  0.13
+Modify  | 0.55912    | 0.55912    | 0.55912    |   0.0 |  1.82
+Other   |            | 0.1074     |            |       |  0.35
+
+Nlocal:          17550 ave       17550 max       17550 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Nghost:          25617 ave       25617 max       25617 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Neighs:    8.46109e+06 ave 8.46109e+06 max 8.46109e+06 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+
+Total # of neighbors = 8461087
+Ave neighs/atom = 482.11322
+Ave special neighs/atom = 5.9822222
+Neighbor list builds = 320
+Dangerous builds = 0
+include         ctrl.inc
+# empty
+if "$(v_stop == 1)" then "jump SELF done"
+if "$(v_stop == 2)" then "jump SELF abandon"
+
+next            i
+jump            SELF run_loop
+
+run             ${chunk}
+run             1000
+PPPM initialization ...
+  using 12-bit tables for long-range coulomb
+  G vector (1/distance) = 0.14576195
+  grid = 15 15 400
+  stencil order = 5
+  estimated absolute RMS force accuracy = 0.015173798
+  estimated relative force accuracy = 4.5695442e-05
+  using double precision FFTW3
+  3d grid and FFT values/proc = 160800 90000
+Generated 36 of 36 mixed pair_coeff terms from sixthpower/geometric mixing rule
+Last active /omp style is kspace_style pppm/omp
+Per MPI rank memory allocation (min/avg/max) = 199.8 | 199.8 | 199.8 Mbytes
+   Step         v_tps           v_zs          v_eabs    
+      6000   3              100.44634      163.49441    
+      7000   3.5            107.67698      151.43599    
+Loop time of 30.3187 on 16 procs for 1000 steps with 17550 atoms
+
+Performance: 1.425 ns/day, 16.844 hours/ns, 32.983 timesteps/s, 578.851 katom-step/s
+709.4% CPU use with 1 MPI tasks x 16 OpenMP threads
+
+MPI task timing breakdown:
+Section |  min time  |  avg time  |  max time  |%varavg| %total
+---------------------------------------------------------------
+Pair    | 10.023     | 10.023     | 10.023     |   0.0 | 33.06
+Bond    | 2.6067     | 2.6067     | 2.6067     |   0.0 |  8.60
+Kspace  | 9.6432     | 9.6432     | 9.6432     |   0.0 | 31.81
+Neigh   | 7.112      | 7.112      | 7.112      |   0.0 | 23.46
+Comm    | 0.23507    | 0.23507    | 0.23507    |   0.0 |  0.78
+Output  | 0.039838   | 0.039838   | 0.039838   |   0.0 |  0.13
+Modify  | 0.55329    | 0.55329    | 0.55329    |   0.0 |  1.82
+Other   |            | 0.1057     |            |       |  0.35
+
+Nlocal:          17550 ave       17550 max       17550 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Nghost:          25816 ave       25816 max       25816 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Neighs:    8.21939e+06 ave 8.21939e+06 max 8.21939e+06 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+
+Total # of neighbors = 8219388
+Ave neighs/atom = 468.3412
+Ave special neighs/atom = 5.9822222
+Neighbor list builds = 325
+Dangerous builds = 0
+include         ctrl.inc
+# empty
+if "$(v_stop == 1)" then "jump SELF done"
+if "$(v_stop == 2)" then "jump SELF abandon"
+
+next            i
+jump            SELF run_loop
+
+run             ${chunk}
+run             1000
+PPPM initialization ...
+  using 12-bit tables for long-range coulomb
+  G vector (1/distance) = 0.14576195
+  grid = 15 15 400
+  stencil order = 5
+  estimated absolute RMS force accuracy = 0.015173798
+  estimated relative force accuracy = 4.5695442e-05
+  using double precision FFTW3
+  3d grid and FFT values/proc = 160800 90000
+Generated 36 of 36 mixed pair_coeff terms from sixthpower/geometric mixing rule
+Last active /omp style is kspace_style pppm/omp
+Per MPI rank memory allocation (min/avg/max) = 199.8 | 199.8 | 199.8 Mbytes
+   Step         v_tps           v_zs          v_eabs    
+      7000   3.5            107.67698      151.43599    
+      8000   4              114.92431      132.014      
+Loop time of 30.9866 on 16 procs for 1000 steps with 17550 atoms
+
+Performance: 1.394 ns/day, 17.215 hours/ns, 32.272 timesteps/s, 566.374 katom-step/s
+659.3% CPU use with 1 MPI tasks x 16 OpenMP threads
+
+MPI task timing breakdown:
+Section |  min time  |  avg time  |  max time  |%varavg| %total
+---------------------------------------------------------------
+Pair    | 10.06      | 10.06      | 10.06      |   0.0 | 32.47
+Bond    | 2.9716     | 2.9716     | 2.9716     |   0.0 |  9.59
+Kspace  | 9.7777     | 9.7777     | 9.7777     |   0.0 | 31.55
+Neigh   | 7.1556     | 7.1556     | 7.1556     |   0.0 | 23.09
+Comm    | 0.23699    | 0.23699    | 0.23699    |   0.0 |  0.76
+Output  | 0.038268   | 0.038268   | 0.038268   |   0.0 |  0.12
+Modify  | 0.63476    | 0.63476    | 0.63476    |   0.0 |  2.05
+Other   |            | 0.1116     |            |       |  0.36
+
+Nlocal:          17550 ave       17550 max       17550 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Nghost:          26012 ave       26012 max       26012 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Neighs:    8.09534e+06 ave 8.09534e+06 max 8.09534e+06 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+
+Total # of neighbors = 8095342
+Ave neighs/atom = 461.27305
+Ave special neighs/atom = 5.9822222
+Neighbor list builds = 323
+Dangerous builds = 0
+include         ctrl.inc
+# empty
+if "$(v_stop == 1)" then "jump SELF done"
+if "$(v_stop == 2)" then "jump SELF abandon"
+
+next            i
+jump            SELF run_loop
+
+run             ${chunk}
+run             1000
+PPPM initialization ...
+  using 12-bit tables for long-range coulomb
+  G vector (1/distance) = 0.14576195
+  grid = 15 15 400
+  stencil order = 5
+  estimated absolute RMS force accuracy = 0.015173798
+  estimated relative force accuracy = 4.5695442e-05
+  using double precision FFTW3
+  3d grid and FFT values/proc = 160800 90000
+Generated 36 of 36 mixed pair_coeff terms from sixthpower/geometric mixing rule
+Last active /omp style is kspace_style pppm/omp
+Per MPI rank memory allocation (min/avg/max) = 199.8 | 199.8 | 199.8 Mbytes
+   Step         v_tps           v_zs          v_eabs    
+      8000   4              114.92431      132.014      
+      9000   4.5            122.12947      107.9922     
+Loop time of 29.9656 on 16 procs for 1000 steps with 17550 atoms
+
+Performance: 1.442 ns/day, 16.648 hours/ns, 33.372 timesteps/s, 585.671 katom-step/s
+671.8% CPU use with 1 MPI tasks x 16 OpenMP threads
+
+MPI task timing breakdown:
+Section |  min time  |  avg time  |  max time  |%varavg| %total
+---------------------------------------------------------------
+Pair    | 9.8744     | 9.8744     | 9.8744     |   0.0 | 32.95
+Bond    | 2.5855     | 2.5855     | 2.5855     |   0.0 |  8.63
+Kspace  | 9.5773     | 9.5773     | 9.5773     |   0.0 | 31.96
+Neigh   | 6.993      | 6.993      | 6.993      |   0.0 | 23.34
+Comm    | 0.23338    | 0.23338    | 0.23338    |   0.0 |  0.78
+Output  | 0.039339   | 0.039339   | 0.039339   |   0.0 |  0.13
+Modify  | 0.55796    | 0.55796    | 0.55796    |   0.0 |  1.86
+Other   |            | 0.1049     |            |       |  0.35
+
+Nlocal:          17550 ave       17550 max       17550 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Nghost:          26292 ave       26292 max       26292 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Neighs:    8.01115e+06 ave 8.01115e+06 max 8.01115e+06 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+
+Total # of neighbors = 8011146
+Ave neighs/atom = 456.47556
+Ave special neighs/atom = 5.9822222
+Neighbor list builds = 322
+Dangerous builds = 0
+include         ctrl.inc
+# empty
+if "$(v_stop == 1)" then "jump SELF done"
+if "$(v_stop == 2)" then "jump SELF abandon"
+
+next            i
+jump            SELF run_loop
+
+run             ${chunk}
+run             1000
+PPPM initialization ...
+  using 12-bit tables for long-range coulomb
+  G vector (1/distance) = 0.14576195
+  grid = 15 15 400
+  stencil order = 5
+  estimated absolute RMS force accuracy = 0.015173798
+  estimated relative force accuracy = 4.5695442e-05
+  using double precision FFTW3
+  3d grid and FFT values/proc = 160800 90000
+Generated 36 of 36 mixed pair_coeff terms from sixthpower/geometric mixing rule
+Last active /omp style is kspace_style pppm/omp
+Per MPI rank memory allocation (min/avg/max) = 199.8 | 199.8 | 199.8 Mbytes
+   Step         v_tps           v_zs          v_eabs    
+      9000   4.5            122.12947      107.9922     
+     10000   5              129.27591      83.713651    
+Loop time of 29.7842 on 16 procs for 1000 steps with 17550 atoms
+
+Performance: 1.450 ns/day, 16.547 hours/ns, 33.575 timesteps/s, 589.239 katom-step/s
+674.1% CPU use with 1 MPI tasks x 16 OpenMP threads
+
+MPI task timing breakdown:
+Section |  min time  |  avg time  |  max time  |%varavg| %total
+---------------------------------------------------------------
+Pair    | 9.7614     | 9.7614     | 9.7614     |   0.0 | 32.77
+Bond    | 2.5266     | 2.5266     | 2.5266     |   0.0 |  8.48
+Kspace  | 9.5089     | 9.5089     | 9.5089     |   0.0 | 31.93
+Neigh   | 7.0611     | 7.0611     | 7.0611     |   0.0 | 23.71
+Comm    | 0.23305    | 0.23305    | 0.23305    |   0.0 |  0.78
+Output  | 0.03733    | 0.03733    | 0.03733    |   0.0 |  0.13
+Modify  | 0.55127    | 0.55127    | 0.55127    |   0.0 |  1.85
+Other   |            | 0.1047     |            |       |  0.35
+
+Nlocal:          17550 ave       17550 max       17550 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Nghost:          26395 ave       26395 max       26395 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Neighs:    7.95107e+06 ave 7.95107e+06 max 7.95107e+06 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+
+Total # of neighbors = 7951070
+Ave neighs/atom = 453.05242
+Ave special neighs/atom = 5.9822222
+Neighbor list builds = 327
+Dangerous builds = 0
+include         ctrl.inc
+variable stop equal 1
+if "$(v_stop == 1)" then "jump SELF done"
+jump SELF done
+
+write_data      ${tag}_end_converged.data
+write_data      kick35Aps_end_converged.data
+System init for write_data ...
+PPPM initialization ...
+  using 12-bit tables for long-range coulomb
+  G vector (1/distance) = 0.14576195
+  grid = 15 15 400
+  stencil order = 5
+  estimated absolute RMS force accuracy = 0.015173798
+  estimated relative force accuracy = 4.5695442e-05
+  using double precision FFTW3
+  3d grid and FFT values/proc = 160800 90000
+Generated 36 of 36 mixed pair_coeff terms from sixthpower/geometric mixing rule
+Last active /omp style is kspace_style pppm/omp
+write_restart   ${tag}_end_converged.restart
+write_restart   kick35Aps_end_converged.restart
+System init for write_restart ...
+PPPM initialization ...
+  using 12-bit tables for long-range coulomb
+  G vector (1/distance) = 0.14576195
+  grid = 15 15 400
+  stencil order = 5
+  estimated absolute RMS force accuracy = 0.015173798
+  estimated relative force accuracy = 4.5695442e-05
+  using double precision FFTW3
+  3d grid and FFT values/proc = 160800 90000
+Generated 36 of 36 mixed pair_coeff terms from sixthpower/geometric mixing rule
+Last active /omp style is kspace_style pppm/omp
+write_dump      all custom ${tag}_end_converged.dump id type x y z ix iy iz
+write_dump      all custom kick35Aps_end_converged.dump id type x y z ix iy iz
+print           "CONVERGED ${tag} zdist=$(v_zs-v_Z0) Eabs=${eabs}" file ${tag}_status.txt
+print           "CONVERGED ${tag} zdist=$(v_zs-v_Z0) Eabs=${eabs}" file kick35Aps_status.txt
+CONVERGED kick35Aps zdist=44.547003313910607858 Eabs=72.3509591517007
+
+jump            SELF finish
+
+print           "FINISHED ${tag}"
+FINISHED kick35Aps
+Total wall time: 0:05:42

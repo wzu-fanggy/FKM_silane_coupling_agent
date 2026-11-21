@@ -1,0 +1,66 @@
+# ============================================================
+# FKM/SiO2 pull-out prep for server
+# 400 A z-slab + anchored matrix + NVT 500 ps
+# All files used/generated in the same directory
+# Input : pull_prep_400A.data (same directory)
+# Output: pull_equil.data / pull_equil.restart / pull_equil.dump
+#       + equil_monitor.txt
+# Submit : srun lmp -in in.pull_equil.lammps
+# ============================================================
+
+units           real
+atom_style      full
+boundary        p p f
+
+pair_style      lj/class2/coul/long 15.5
+bond_style      class2
+angle_style     class2
+dihedral_style  class2
+improper_style  class2
+special_bonds   lj/coul 0 0 1
+kspace_style    pppm 1e-4
+kspace_modify   slab 3.0
+
+read_data       pull_prep_400A.data
+
+neighbor        0.3 bin
+neigh_modify    delay 0 every 1 check yes
+
+# ---- groups --------------------------------------------------
+group           SIO2 type 7 8 9
+group           FKM type 1 2 3 4 5 6
+region          anchor_region block INF INF INF INF 0.0 20.0
+group           anchor region anchor_region
+group           anchor subtract anchor SIO2
+
+# ---- parameters ----------------------------------------------
+variable        T      equal 300.0
+variable        tdamp  equal 100.0
+
+velocity        all create ${T} 4928459 dist gaussian
+velocity        all zero linear
+
+timestep        1.0
+
+fix             nve_sio2 SIO2 nve
+fix             nvt_matrix FKM nvt temp ${T} ${T} ${tdamp}
+fix             anchor_spring anchor spring/self 5.0
+
+thermo          1000
+thermo_style    custom step temp pe ke etotal press vol density lz
+
+# ---- monitors ------------------------------------------------
+variable        Step    equal step
+variable        Tps     equal step*0.001
+variable        Dens    equal density
+variable        Lz      equal lz
+variable        ZmaxFKM equal bound(FKM,zmax)
+fix             mon all print 1000 "${Step} ${Tps} ${Dens} ${Lz} ${ZmaxFKM}" file equil_monitor.txt screen no
+
+run             500000
+
+write_restart   pull_equil.restart
+write_data      pull_equil.data
+write_dump      all custom pull_equil.dump id type x y z ix iy iz
+
+print           "Pull-out equilibration finished."

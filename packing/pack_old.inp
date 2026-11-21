@@ -1,0 +1,20 @@
+# FKM/SiO2 nanocluster composite packing (PACKMOL)
+# 45 A cubic box, 30 FKM chains, SiO2 fixed at box center
+# single deterministic seed, tolerance 1.5, long nloop budget
+tolerance 1.5
+filetype pdb
+output FKM-SiO2-45A-30chains.pdb
+seed 12345
+nloop 400
+maxit 200
+
+structure final-Nanocluster.pdb
+  number 1
+  center
+  fixed 22.5 22.5 22.5 0. 0. 0.
+end structure
+
+structure pro20.pdb
+  number 30
+  inside box 0. 0. 0. 45. 45. 45.
+end structure

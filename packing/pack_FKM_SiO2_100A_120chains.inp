@@ -1,0 +1,18 @@
+# very loose FKM/SiO2 packing: 100 A cube, 120 optimized pro20 chains
+tolerance 1.5
+filetype pdb
+output FKM-SiO2-100A-130chains.pdb
+seed 12345
+nloop 400
+maxit 200
+
+structure F:/Lammps-MS/FKM-SIO2-TEST/Nanocluster-deal-15A-optimized.pdb
+  number 1
+  center
+  fixed 50.0 50.0 50.0 0. 0. 0.
+end structure
+
+structure F:/Lammps-MS/FKM-SIO2-TEST/pro20_optimized.pdb
+  number 120
+  inside box 0. 0. 0. 100. 100. 100.
+end structure

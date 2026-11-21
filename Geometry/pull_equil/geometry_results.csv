@@ -1,0 +1,12 @@
+metric,value
+source,geometry_atoms.dump
+n_sio2,1470
+n_fkm,16080
+com_x_A,51.58634
+com_y_A,52.990553
+com_z_A,50.618019
+rg_A,11.780947
+r95_A,14.953449
+r_surf_A,15.1
+contact_area_A2,2865.258164
+contact_area_nm2,28.652582

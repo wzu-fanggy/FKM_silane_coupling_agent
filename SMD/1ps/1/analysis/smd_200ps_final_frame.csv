@@ -1,0 +1,7 @@
+metric,value
+final_group_group_energy_kcal_mol,-573.780195903045
+initial_group_group_energy_kcal_mol,-1260.8452806842
+residual_interface_energy_pct,45.5
+min_sio2_fkm_distance_A,1.587
+fkm_atoms_within_3.5A,954
+fkm_atoms_within_5A,5747

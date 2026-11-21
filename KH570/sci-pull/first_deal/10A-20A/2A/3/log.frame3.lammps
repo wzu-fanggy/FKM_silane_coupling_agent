@@ -1,0 +1,296 @@
+LAMMPS (4 Jul 2026)
+  using 16 OpenMP thread(s) per MPI task
+Loaded 0 plugins from F:\LAMMPS 64-bit 4Jul2026 with GUI\plugins
+package gpu 1
+# ============================================================
+# Uniaxial pull-out, frame 3, 2 A/ps
+# SiO2 pulled +Z (50000 steps at 1.0 fs)
+# Force and SiO2-FKM interface energy every 200 steps
+# ============================================================
+
+units           real
+atom_style      full
+boundary        p p f
+
+pair_style      lj/class2/coul/long 15.5
+kspace_style    pppm 1e-4
+kspace_modify   slab 3.0
+Updated KSpace settings:
+  KSpace computation is turned:    ON
+  Use MPI collective operations:   OFF
+  Use MPI non-blocking operations: OFF
+  Gewald is determined automatically
+  Slab volfactor manually set to:    3
+bond_style      class2
+angle_style     class2
+dihedral_style  class2
+improper_style  class2
+special_bonds   lj/coul 0 0 1
+
+read_data       frame3.data
+Reading data file ...
+  orthogonal box = (-27.641569 -31.916141 -24.023616) to (30.94185 26.852966 315.21757)
+  1 by 1 by 1 MPI processor grid
+  reading atoms ...
+  17850 atoms
+  reading velocities ...
+  17850 velocities
+  scanning bonds ...
+  4 = max bonds/atom
+  scanning angles ...
+  6 = max angles/atom
+  scanning dihedrals ...
+  21 = max dihedrals/atom
+  scanning impropers ...
+  4 = max impropers/atom
+  orthogonal box = (-27.641569 -31.916141 -24.023616) to (30.94185 26.852966 315.21757)
+  1 by 1 by 1 MPI processor grid
+  reading bonds ...
+  17992 bonds
+  reading angles ...
+  35342 angles
+  reading dihedrals ...
+  51562 dihedrals
+  reading impropers ...
+  22934 impropers
+Finding 1-2 1-3 1-4 neighbors ...
+  special bond factors lj:    0        0        1       
+  special bond factors coul:  0        0        1       
+     4 = max # of 1-2 neighbors
+     9 = max # of 1-3 neighbors
+    13 = max # of special neighbors
+  special bonds CPU = 0.004 seconds
+  read_data CPU = 0.538 seconds
+
+neighbor        0.3 bin
+neigh_modify    delay 0 every 1 check yes
+
+# ---- groups ----
+group           sio2   type 5 6 7 9 11 12 13 14 15 16 17
+1770 atoms in group sio2
+group           matrix type 1 2 3 4 8 10
+16080 atoms in group matrix
+
+region          clamp block INF INF INF INF INF 0.976384 units box
+group           clamp region clamp
+2759 atoms in group clamp
+group           clamp subtract clamp sio2
+2759 atoms in group clamp
+group           mobile subtract matrix clamp
+13321 atoms in group mobile
+
+# ---- constraints ----
+fix             freeze clamp setforce 0 0 0
+fix             pull  sio2 move linear 0 0 0.002000
+fix             temp  mobile nvt temp 300.0 300.0 100.0
+fix             wallz all wall/reflect zlo -24.023615747639855 zhi 315.217567440135326
+
+# ---- force/displacement/interface-energy output ----
+variable        z0     equal xcm(sio2,z)
+variable        disp   equal xcm(sio2,z)-${z0}
+variable        disp   equal xcm(sio2,z)-21.2889383447993
+compute         fsio   sio2 reduce sum fz
+variable        force  equal -c_fsio
+compute         gg     sio2 group/group matrix pair yes kspace yes
+variable        egg    equal c_gg
+fix             out all print 200 "$(step) $(v_disp) $(v_force) $(v_egg)"                 file force_curve.txt screen no
+
+# ---- trajectory ----
+dump            traj all custom 200 traj.dump id type x y z vx vy vz ix iy iz
+dump_modify     traj sort id
+dump_modify     traj flush yes
+
+thermo          1000
+thermo_style    custom step temp pe press v_disp v_force
+
+timestep        1.0
+run             50000
+
+CITE-CITE-CITE-CITE-CITE-CITE-CITE-CITE-CITE-CITE-CITE-CITE-CITE
+
+Your simulation uses code contributions which should be cited:
+
+- GPU package (short-range, long-range and three-body potentials): https://doi.org/10.1016/j.cpc.2010.12.021, https://doi.org/10.1016/j.cpc.2011.10.012, https://doi.org/10.1016/j.cpc.2013.08.002, https://doi.org/10.1016/j.commatsci.2014.10.068, https://doi.org/10.1016/j.cpc.2016.10.020, https://doi.org/10.3233/APC200086
+
+@Article{Brown11,
+ author = {W. M. Brown and P. Wang and S. J. Plimpton and A. N. Tharrington},
+ title = {Implementing Molecular Dynamics on Hybrid High Performance Computers---Short Range Forces},
+ journal = {Comput.\ Phys.\ Commun.},
+ year =    2011,
+ volume =  182,
+ pages =   {898--911},
+ doi =     {10.1016/j.cpc.2010.12.021}
+}
+
+@Article{Brown12,
+ author = {W. M. Brown and A. Kohlmeyer and S. J. Plimpton and A. N. Tharrington},
+ title = {Implementing Molecular Dynamics on Hybrid High Performance Computers - Particle-Particle Particle-Mesh},
+ journal = {Comput.\ Phys.\ Commun.},
+ year =    2012,
+ volume =  183,
+ doi =     {10.1016/j.cpc.2011.10.012},
+ pages =   {449--459}
+}
+
+@Article{Brown13,
+ author = {W. M. Brown and Y. Masako},
+ title = {Implementing Molecular Dynamics on Hybrid High Performance Computers---Three-Body Potentials},
+ journal = {Comput.\ Phys.\ Commun.},
+ year =    2013,
+ volume =  184,
+ pages =   {2785--2793},
+ doi =     {10.1016/j.cpc.2013.08.002},
+}
+
+@Article{Trung15,
+ author = {T. D. Nguyen and S. J. Plimpton},
+ title = {Accelerating Dissipative Particle Dynamics Simulations for Soft Matter Systems},
+ journal = {Comput.\ Mater.\ Sci.},
+ year =    2015,
+ doi =     {10.1016/j.commatsci.2014.10.068},
+ volume =  100,
+ pages =   {173--180}
+}
+
+@Article{Trung17,
+ author = {T. D. Nguyen},
+ title = {{GPU}-Accelerated {T}ersoff Potentials for Massively Parallel
+    Molecular Dynamics Simulations},
+ journal = {Comput.\ Phys.\ Commun.},
+ year =    2017,
+ doi =     {10.1016/j.cpc.2016.10.020},
+ volume =  212,
+ pages =   {113--122}
+}
+
+@inproceedings{Nikolskiy19,
+ author = {V. Nikolskiy and V. Stegailov},
+ title = {{GPU} Acceleration of Four-Site Water Models in {LAMMPS}},
+ booktitle = {Proceedings of the International Conference on Parallel
+    Computing (ParCo 2019), Prague, Czech Republic},
+ doi =     {10.3233/APC200086},
+ year =    2019
+}
+
+CITE-CITE-CITE-CITE-CITE-CITE-CITE-CITE-CITE-CITE-CITE-CITE-CITE
+
+PPPM initialization ...
+  using 12-bit tables for long-range coulomb
+  G vector (1/distance) = 0.14678886
+  grid = 15 15 144
+  stencil order = 5
+  estimated absolute RMS force accuracy = 0.023843429
+  estimated relative force accuracy = 7.1803779e-05
+  using double precision FFTW3
+  3d grid and FFT values/proc = 58400 32400
+Generated 136 of 136 mixed pair_coeff terms from sixthpower/geometric mixing rule
+Neighbor list info ...
+  update: every = 1 steps, delay = 0 steps, check = yes
+  max neighbors/atom: 2000, page size: 100000
+  master list distance cutoff = 15.8
+  ghost atom cutoff = 15.8
+  binsize = 7.9, bins = 8 8 43
+  1 neighbor lists, perpetual/occasional/extra = 0 1 0
+  (1) compute group/group, occasional
+      attributes: half, newton on
+      pair build: half/bin/newton
+      stencil: half/bin/3d
+      bin: standard
+Per MPI rank memory allocation (min/avg/max) = 137.2 | 137.2 | 137.2 Mbytes
+   Step          Temp          PotEng         Press          v_disp        v_force    
+         0   303.29522     -258191.7       15.282521     -3.5527137e-14  9.9609289    
+      1000   274.14338     -257976.69     -145.58889      2              254.44207    
+      2000   272.2434      -257769.41     -65.060942      4              288.16932    
+      3000   273.77897     -257292.98     -218.75532      6              212.51801    
+      4000   270.88745     -256992.69     -163.52521      8              127.53074    
+      5000   272.90261     -256940.68     -176.08367      10             82.353671    
+      6000   273.73528     -256637.93     -186.10131      12             105.44192    
+      7000   271.94799     -256618.74     -182.20497      14             103.59385    
+      8000   274.14267     -256545.53     -217.20144      16             70.335889    
+      9000   269.67153     -256449.93     -205.99791      18             83.05066     
+     10000   274.41632     -256396.9      -206.02473      20             43.628539    
+     11000   275.53643     -256495.95     -235.73689      22             77.105713    
+     12000   270.78778     -256445.26     -223.3923       24             74.628723    
+     13000   272.43818     -256376.24     -159.77577      26             59.126248    
+     14000   276.6859      -256201.24     -6.4694038      28             3.8730373    
+     15000   272.13768     -256402.26     -116.87422      30             56.757195    
+     16000   272.67361     -256433.33     -101.59392      32             6.9167872    
+     17000   274.2305      -256415.36     -113.17092      34             39.363374    
+     18000   276.40345     -256513.54     -202.36337      36             36.425053    
+     19000   274.69302     -256325.6      -109.53127      38             31.68112     
+     20000   276.16941     -256524.37      1.8681846      40             53.81368     
+     21000   270.14743     -256520.26     -214.54611      42             34.022848    
+     22000   274.90764     -256542.25     -118.68491      44            -33.018737    
+     23000   274.42732     -256548.4      -134.03513      46             43.043195    
+     24000   274.07634     -256654.93     -72.580806      48            -49.243721    
+     25000   274.05397     -256756.46      64.50072       50             40.386672    
+     26000   274.63827     -256590.25     -18.247114      52            -2.2360601    
+     27000   271.61686     -256586.83      23.760883      54            -4.6720809    
+     28000   272.83998     -256792.37     -98.603596      56             18.446215    
+     29000   271.81224     -256827.51     -110.62806      58             14.421026    
+     30000   273.10111     -256758.03     -98.800244      60             8.0481077    
+     31000   274.10765     -256842.45     -212.62459      62            -15.447814    
+     32000   272.5364      -256776.17     -91.248509      64             9.180636     
+     33000   271.80971     -256955.23     -234.19708      66             17.992432    
+     34000   274.08525     -256787.49     -187.49049      68             18.354469    
+     35000   272.58373     -256830.53     -184.66415      70             55.351196    
+     36000   275.25609     -256911.49     -126.28796      72             6.5908188    
+     37000   272.01543     -256934.32     -135.49704      74             43.460437    
+     38000   271.74921     -256838.78     -123.07498      76            -17.889043    
+     39000   273.65857     -256984.63     -82.519383      78             35.387063    
+     40000   272.68868     -257013.26     -94.810645      80             32.548657    
+     41000   273.4312      -257019.98     -104.16819      82             28.685054    
+     42000   271.87764     -257031.1      -185.13601      84            -15.75326     
+     43000   272.28096     -256932.49     -157.05932      86             0.29044568   
+     44000   274.36749     -256850.51     -34.4203        88            -15.326351    
+     45000   272.78826     -257111.5      -104.19498      90             4.4085651    
+     46000   272.63892     -256872.95     -106.04808      92             38.551346    
+     47000   274.2205      -257053.95     -64.687184      94            -17.945484    
+     48000   272.87182     -257077.87     -113.64868      96             24.090879    
+     49000   272.44442     -257430.23      19.023494      98            -40.931524    
+     50000   272.73491     -257093.57     -249.07132      100           -5.2078788    
+Loop time of 1240.27 on 16 procs for 50000 steps with 17850 atoms
+
+Performance: 3.483 ns/day, 6.890 hours/ns, 40.314 timesteps/s, 719.600 katom-step/s
+97.5% CPU use with 1 MPI tasks x 16 OpenMP threads
+
+MPI task timing breakdown:
+Section |  min time  |  avg time  |  max time  |%varavg| %total
+---------------------------------------------------------------
+Pair    | 137.06     | 137.06     | 137.06     |   0.0 | 11.05
+Bond    | 893        | 893        | 893        |   0.0 | 72.00
+Kspace  | 102.1      | 102.1      | 102.1      |   0.0 |  8.23
+Neigh   | 4.2673     | 4.2673     | 4.2673     |   0.0 |  0.34
+Comm    | 11.521     | 11.521     | 11.521     |   0.0 |  0.93
+Output  | 9.3415     | 9.3415     | 9.3415     |   0.0 |  0.75
+Modify  | 76.589     | 76.589     | 76.589     |   0.0 |  6.18
+Other   |            | 6.395      |            |       |  0.52
+
+Nlocal:          17850 ave       17850 max       17850 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Nghost:          26120 ave       26120 max       26120 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Neighs:    9.67276e+06 ave 9.67276e+06 max 9.67276e+06 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+
+Total # of neighbors = 9672758
+Ave neighs/atom = 541.8912
+Ave special neighs/atom = 5.9757983
+Neighbor list builds = 17136
+Dangerous builds = 0
+
+write_data      pull_end.data
+System init for write_data ...
+PPPM initialization ...
+  using 12-bit tables for long-range coulomb
+  G vector (1/distance) = 0.14678886
+  grid = 15 15 144
+  stencil order = 5
+  estimated absolute RMS force accuracy = 0.023843429
+  estimated relative force accuracy = 7.1803779e-05
+  using double precision FFTW3
+  3d grid and FFT values/proc = 58400 32400
+Generated 136 of 136 mixed pair_coeff terms from sixthpower/geometric mixing rule
+print           ">>> frame 3 pull-out completed."
+>>> frame 3 pull-out completed.
+Total wall time: 0:20:41

@@ -1,0 +1,22 @@
+# FKM/SiO2 pro50 packing
+# Initial box: 200 A cube, straight pro50 length ~108 A
+# Final target after NPT: 1.9 g/cm3, side ~80 A
+# 139 pro50 chains + 1 SiO2 (15 A radius) fixed at center
+
+tolerance 1.2
+filetype pdb
+output F:/Lammps-MS/FKM-SIO2-TEST/packing/pro50/FKM-SiO2-200A-139pro50.pdb
+seed 12345
+nloop 100
+maxit 200
+
+structure F:/Lammps-MS/FKM-SIO2-TEST/packing/pro50/Nanocluster-deal-15A-optimized.pdb
+  number 1
+  center
+  fixed 100.0 100.0 100.0 0. 0. 0.
+end structure
+
+structure F:/Lammps-MS/FKM-SIO2-TEST/packing/pro50/pro50_optimized.pdb
+  number 139
+  inside box 0. 0. 0. 200. 200. 200.
+end structure

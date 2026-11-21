@@ -1,0 +1,71 @@
+colvarsTrajFrequency 1000
+indexFile FKM.ndx
+
+colvar {
+  name z_sio2
+  distanceZ {
+    main { atomNumbersRange 1-1470 }
+    ref { dummyAtom (0.0, 0.0, 0.0) }
+    axis (0.0, 0.0, 1.0)
+  }
+  outputAppliedForce on
+}
+
+colvar {
+  name x_sio2
+  distanceZ {
+    main { atomNumbersRange 1-1470 }
+    ref { dummyAtom (51.594, 52.935, 0.0) }
+    axis (1.0, 0.0, 0.0)
+  }
+}
+
+colvar {
+  name y_sio2
+  distanceZ {
+    main { atomNumbersRange 1-1470 }
+    ref { dummyAtom (51.594, 52.935, 0.0) }
+    axis (0.0, 1.0, 0.0)
+  }
+}
+
+colvar {
+  name z_fkm
+  distanceZ {
+    main { indexGroup FKM }
+    ref { dummyAtom (0.0, 0.0, 0.0) }
+    axis (0.0, 0.0, 1.0)
+  }
+}
+
+harmonic {
+  name pull_sio2
+  colvars z_sio2
+  forceConstant 100.0
+  centers 64.618000
+  targetCenters 66.618000
+  targetNumSteps 2000
+  outputAccumulatedWork on
+  outputCenters on
+}
+
+harmonic {
+  name hold_x_sio2
+  colvars x_sio2
+  forceConstant 100.0
+  centers 0.0
+}
+
+harmonic {
+  name hold_y_sio2
+  colvars y_sio2
+  forceConstant 100.0
+  centers 0.0
+}
+
+harmonic {
+  name hold_fkm
+  colvars z_fkm
+  forceConstant 10.0
+  centers 50.647
+}

@@ -1,0 +1,127 @@
+# FKM-SiO2 kick gradient with dynamic bulk-separation stop
+# Reversed order: 50, 45, 40, 35, 30, 25, 20, 15 A/ps
+# Same criteria and thresholds as in.pullout_dynamic_15to50.lammps
+
+units           real
+atom_style      full
+boundary        p p f
+
+variable        velZ index 0.050 0.045 0.040 0.035 0.030 0.025 0.020 0.015
+variable        tag  index kick50Aps kick45Aps kick40Aps kick35Aps kick30Aps kick25Aps kick20Aps kick15Aps
+
+label           vel_loop
+
+clear
+
+units           real
+atom_style      full
+boundary        p p f
+
+package         omp 16
+suffix          omp
+
+pair_style      lj/class2/coul/long 15.5
+bond_style      class2
+angle_style     class2
+dihedral_style  class2
+improper_style  class2
+special_bonds   lj/coul 0 0 1
+kspace_style    pppm 1e-4
+kspace_modify   slab 3.0
+
+neighbor        0.3 bin
+neigh_modify    delay 0 every 1 check yes
+
+read_data       F:/Lammps-MS/FKM-SIO2-TEST/pull/NEW/ex/pull_equil_600Aadd.data
+
+group           SIO2 type 7 8 9
+group           FKM type 1 2 3 4 5 6
+
+compute         gg FKM group/group SIO2 pair yes kspace yes
+compute         zmax all reduce max z
+
+variable        zmt equal c_zmax
+variable        eabs0 equal abs(c_gg)
+
+timestep        0.5
+velocity        SIO2 set 0.0 0.0 ${velZ}
+fix             nve all nve
+
+variable        Z0 equal 0.0
+variable        E0 equal 0.0
+variable        R equal 14.956041
+variable        D equal 2*${R}
+variable        chunk equal 1000
+variable        phase equal 0
+variable        Eref equal 0.0
+variable        s3start equal 0
+variable        s3tmp equal 0
+variable        n5 equal (step-v_s3start)/v_chunk+1
+variable        e1 equal 0.0
+variable        e2 equal 0.0
+variable        e3 equal 0.0
+variable        e4 equal 0.0
+variable        e5 equal 0.0
+variable        tps equal step*0.0005
+variable        zs equal xcm(SIO2,z)
+variable        zdist equal v_zs-v_Z0
+variable        eabs equal abs(c_gg)
+variable        eavg equal (v_e1+v_e2+v_e3+v_e4+v_e5)/5.0
+
+thermo          1000
+thermo_style    custom step v_phase v_zdist v_eabs v_eavg
+run             0
+
+variable        Z0 equal ${zmt}
+variable        E0 equal ${eabs}
+
+dump            traj all custom 1000 F:/Lammps-MS/FKM-SIO2-TEST/pull/NEW/ex/50to15/${tag}_traj.dump id type x y z ix iy iz
+
+print           "START ${tag} Z0=${Z0} E0=${E0} R=${R} D=${D}"
+fix             monitor all print 1000 "${tps} ${zs} ${zdist} ${eabs} ${phase} ${eavg} ${n5} ${Eref}" file F:/Lammps-MS/FKM-SIO2-TEST/pull/NEW/ex/50to15/${tag}_monitor.txt screen no
+
+variable        i loop 1000000
+label           run_loop
+
+run             1000
+
+variable        e5 equal ${e4}
+variable        e4 equal ${e3}
+variable        e3 equal ${e2}
+variable        e2 equal ${e1}
+variable        e1 equal ${eabs}
+
+if "$(v_phase == 0 && v_zdist > v_R)" then "variable phase equal 1" "variable Eref equal ${eabs}"
+if "$(v_phase == 1 && v_zdist > v_R+v_D)" then "variable phase equal 2"
+if "$(v_phase == 2 && v_eabs < 0.1*v_E0)" then "variable phase equal 3" "variable s3tmp equal step" "variable s3start equal ${s3tmp}" "variable e1 equal ${eabs}" "variable e2 equal ${eabs}" "variable e3 equal ${eabs}" "variable e4 equal ${eabs}" "variable e5 equal ${eabs}"
+if "$(v_phase == 3 && v_n5 >= 5 && v_eavg <= 1.01*v_Eref)" then "jump SELF done"
+if "$(v_zdist > v_R+4*v_D)" then "jump SELF abandon"
+
+next            i
+jump            SELF run_loop
+
+label           abandon
+
+write_data      F:/Lammps-MS/FKM-SIO2-TEST/pull/NEW/ex/50to15/${tag}_end_abandoned.data
+write_restart   F:/Lammps-MS/FKM-SIO2-TEST/pull/NEW/ex/50to15/${tag}_end_abandoned.restart
+write_dump      all custom F:/Lammps-MS/FKM-SIO2-TEST/pull/NEW/ex/50to15/${tag}_end_abandoned.dump id type x y z ix iy iz
+print           "ABANDONED ${tag} zdist=${zdist} Eabs=${eabs} phase=${phase} Eref=${Eref}" file F:/Lammps-MS/FKM-SIO2-TEST/pull/NEW/ex/50to15/${tag}_status.txt
+
+jump            SELF advance
+
+label           done
+
+write_data      F:/Lammps-MS/FKM-SIO2-TEST/pull/NEW/ex/50to15/${tag}_end_converged.data
+write_restart   F:/Lammps-MS/FKM-SIO2-TEST/pull/NEW/ex/50to15/${tag}_end_converged.restart
+write_dump      all custom F:/Lammps-MS/FKM-SIO2-TEST/pull/NEW/ex/50to15/${tag}_end_converged.dump id type x y z ix iy iz
+print           "CONVERGED ${tag} zdist=${zdist} Eabs=${eabs} phase=${phase} Eref=${Eref} eavg=${eavg}" file F:/Lammps-MS/FKM-SIO2-TEST/pull/NEW/ex/50to15/${tag}_status.txt
+
+label           advance
+
+next            velZ
+next            tag
+jump            SELF vel_loop
+
+label           finish
+
+print           "ALL VELOCITIES FINISHED"

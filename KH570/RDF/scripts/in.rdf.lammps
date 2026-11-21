@@ -1,0 +1,49 @@
+# ============================================================
+# KH570/FKM/SiO2 RDF via LAMMPS rerun
+# Mirrors: F:/Lammps-MS/FKM-SIO2-TEST/RDF/scripts/in.rdf.lammps
+#
+# Atom types (PCFF labels, see typed PCFF data):
+#   FKM : c(1) c1(2) c2(3) c3(4) f(8) hc(10)
+#   SIO2 (KH570-grafted): c=(5) c=1(6) c_1(7) h*(9)
+#                         o(11) o_1(12) o_2(13) si(14)
+#                         c2_KH570(15) c3_KH570(16) hc_KH570(17)
+# Types 15/16/17 are relabeled copies of the KH570 linker
+# c2/c3/hc atoms, so FKM and grafted SiO2 no longer share types.
+#
+# Run from F:\Lammps-MS\FKM-SIO2-TEST\KH570\RDF:
+#   lmp -in scripts/in.rdf.lammps
+# Trajectory: traj/last50.dump (50 frames, fields id type x y z ix iy iz)
+# ============================================================
+
+units           real
+atom_style      full
+boundary        p p p
+
+pair_style      lj/class2/coul/long 15.5
+bond_style      class2
+angle_style     class2
+dihedral_style  class2
+improper_style  class2
+special_bonds   lj/coul 0 0 1
+kspace_style    pppm 1e-4
+
+read_data       F:/Lammps-MS/FKM-SIO2-TEST/KH570/RDF/data/nve_verify_relabeled_centered.data
+
+group           FKM type 1 2 3 4 8 10
+group           SIO2 type 5 6 7 9 11 12 13 14 15 16 17
+
+compute         rdfall all rdf 100 &
+                  1 5 1 6 1 7 1 9 1 11 1 12 1 13 1 14 1 15 1 16 1 17 &
+                  2 5 2 6 2 7 2 9 2 11 2 12 2 13 2 14 2 15 2 16 2 17 &
+                  3 5 3 6 3 7 3 9 3 11 3 12 3 13 3 14 3 15 3 16 3 17 &
+                  4 5 4 6 4 7 4 9 4 11 4 12 4 13 4 14 4 15 4 16 4 17 &
+                  8 5 8 6 8 7 8 9 8 11 8 12 8 13 8 14 8 15 8 16 8 17 &
+                  10 5 10 6 10 7 10 9 10 11 10 12 10 13 10 14 10 15 10 16 10 17
+fix             av all ave/time 1000 1 1000 c_rdfall[*] ave running mode vector file F:/Lammps-MS/FKM-SIO2-TEST/KH570/RDF/outputs/rdf_avg.txt
+
+thermo          1000
+thermo_style    custom step
+
+rerun           F:/Lammps-MS/FKM-SIO2-TEST/KH570/RDF/traj/last50.dump dump id type x y z ix iy iz box yes
+
+print           "RDF DONE"

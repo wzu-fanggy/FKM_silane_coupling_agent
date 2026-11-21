@@ -1,0 +1,57 @@
+units           real
+atom_style      full
+boundary        p p f
+
+pair_style      lj/class2/coul/long 15.5
+bond_style      class2
+angle_style     class2
+dihedral_style  class2
+improper_style  class2
+special_bonds   lj/coul 0 0 1
+kspace_style    pppm 1e-4
+kspace_modify   slab 3.0
+
+read_data       pull_equil.data
+
+group           SIO2 type 7 8 9
+group           FKM type 1 2 3 4 5 6
+
+region          bottom block INF INF INF INF 0.0 30.0
+group           anchor region bottom
+group           anchor subtract anchor SIO2
+
+group           mobile_FKM subtract FKM anchor
+
+group2ndx       FKM.ndx FKM
+
+velocity        anchor set 0.0 0.0 0.0
+
+fix             nve_sio2 SIO2 nve
+fix             nvt_matrix mobile_FKM nvt temp 300.0 300.0 100.0
+fix             freeze_anchor anchor setforce 0.0 0.0 0.0
+fix             Colvars all colvars colvars.inp output smd
+fix_modify      Colvars energy yes
+
+variable        Step equal step
+variable        Tps  equal step*0.001
+variable        xs equal xcm(SIO2,x)
+variable        ys equal xcm(SIO2,y)
+variable        zs equal xcm(SIO2,z)
+variable        zf equal xcm(FKM,z)
+variable        zfmx equal bound(FKM,zmax)
+variable        zsmin equal bound(SIO2,zmin)
+variable        zsmax equal bound(SIO2,zmax)
+
+thermo          1000
+thermo_style    custom step v_Tps temp pe ke etotal press v_xs v_ys v_zs v_zf v_zfmx v_zsmin v_zsmax
+
+fix             mon all print 1000 "${Step} ${Tps} ${xs} ${ys} ${zs} ${zf} ${zfmx} ${zsmin} ${zsmax}" file smd_monitor.txt screen no
+
+dump            traj all custom 1000 smd_traj.dump id type x y z ix iy iz
+dump_modify     traj sort id flush yes
+
+run             200000
+
+write_restart   smd_end.restart
+write_data      smd_end.data
+write_dump      all custom smd_end.dump id type x y z ix iy iz
